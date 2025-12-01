@@ -1,9 +1,9 @@
 {
   "name": "echo",
-  "productName": "echo",
+  "productName": "Echo",
   "version": "1.0.0",
   "description": "My Electron application description",
-  "main": ".vite/build/main.js",
+  "main": ".vite/build/index.js",
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
@@ -12,7 +12,7 @@
   },
   "keywords": [],
   "author": {
-    "name":"xiaoyue"
+    "name": "xiaoyue"
   },
   "license": "MIT",
   "devDependencies": {
@@ -25,6 +25,8 @@
     "@electron-forge/plugin-fuses": "7.8.1",
     "@electron-forge/plugin-vite": "7.8.1",
     "@electron/fuses": "^1.8.0",
+    "@iconify-json/material-symbols": "^1.2.29",
+    "@iconify/vue": "^5.0.0",
     "@tailwindcss/vite": "^4.1.11",
     "@types/electron-squirrel-startup": "^1.0.2",
     "@types/node": "^24.0.8",
@@ -32,10 +34,18 @@
     "electron": "37.1.0",
     "tailwindcss": "^4.1.11",
     "typescript": "^5.8.3",
+    "unplugin-auto-import": "^20.1.0",
     "vite": "^6.0.0"
   },
   "dependencies": {
+    "@vueuse/core": "^14.1.0",
+    "electron-log": "^5.4.3",
     "electron-squirrel-startup": "^1.0.1",
-    "vue": "^3.5.17"
+    "naive-ui": "^2.42.0",
+    "pinia": "^3.0.3",
+    "vfonts": "^0.0.3",
+    "vue": "^3.5.17",
+    "vue-i18n": "^11.1.9",
+    "vue-router": "^4.5.1"
   }
 }

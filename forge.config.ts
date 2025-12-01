@@ -28,17 +28,18 @@ module.exports = {
     {
       name: '@electron-forge/plugin-vite',
       config: {
-        // `build` can specify multiple entry builds, which can be Main process, Preload scripts, Worker process, etc.
-        // If you are familiar with Vite configuration, it will look really familiar.
+        // `build` 可以指定多个构建入口，分别用于主进程、预加载脚本、工作线程等。
         build: [
           {
             // `entry` is just an alias for `build.lib.entry` in the corresponding file of `config`.
-            entry: 'src/main.ts',
+            //target 是 Vite 配置中的一个属性，用于指定编译的目标环境。
+            // 在 Electron 中，target 的使用主要是为了区分不同的进程类型，例如 Main process（主进程）、Preload（预加载脚本）和 Renderer（渲染进程）
+            entry: 'main/index.ts',
             config: 'vite.main.config.ts',
             target: 'main',
           },
           {
-            entry: 'src/preload.ts',
+            entry: 'preload.ts',
             config: 'vite.preload.config.ts',
             target: 'preload',
           },
@@ -51,8 +52,8 @@ module.exports = {
         ],
       },
     },
-    // Fuses are used to enable/disable various Electron functionality
-    // at package time, before code signing the application
+    // Fuses 用于在打包时启用/禁用各种 Electron 功能，
+    // 这发生在应用程序代码签名之前。
     new FusesPlugin({
       version: FuseVersion.V1,
       [FuseV1Options.RunAsNode]: false,
