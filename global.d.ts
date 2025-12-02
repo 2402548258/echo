@@ -5,6 +5,11 @@ interface WindowApi {
     onWindowMaximized: (callback: (isMaximized: boolean) => void) => void;
     isWindowMaximized: () => Promise<boolean>;
 
+    setThemeMode: (mode: ThemeMode) => Promise<boolean>;
+    getThemeMode: () => Promise<ThemeMode>;
+    isDarkTheme: () => Promise<boolean>;
+    onSystemThemeChange: (callback: (isDark: boolean) => void) => void;
+
     logger: {
         debug: (message: string, ...meta?: any[]) => void;
         info: (message: string, ...meta?: any[]) => void;
@@ -16,3 +21,5 @@ interface WindowApi {
 interface Window {
     api: WindowApi;
 }
+
+type ThemeMode = 'dark' | 'light' | 'system';

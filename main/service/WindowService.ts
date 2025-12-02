@@ -6,10 +6,12 @@ import {
   BrowserWindowConstructorOptions,
   ipcMain,
   IpcMainInvokeEvent,
+  nativeTheme,
   type IpcMainEvent,
 } from 'electron';
 import { debounce } from '@common/utils';
 import path from 'node:path';
+import ThemeService from './ThemeService';
 
 // 新窗口可接受的尺寸配置，供调用 create 时传入
 interface SizeOptions {
@@ -25,6 +27,8 @@ interface SizeOptions {
 const SHARED_WINDOW_OPTIONS = {
   titleBarStyle: 'hidden',
   title: 'Echo',
+  darkTheme:ThemeService.isDark,
+  backgroundColor: ThemeService.isDark ?'#1E1E1E':'#ffffff',  
   webPreferences: {
     nodeIntegration: false, // 禁用 Node.js 集成，提高安全性
     contextIsolation: true, // 启用上下文隔离，防止渲染进程访问主进程 API
