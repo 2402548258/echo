@@ -7,7 +7,7 @@
   },
   "main": {
     "welcome": {
-      "helloMessage": "Hello, I'm Diona"
+      "helloMessage": "Hello, I'm Echo"
     },
     "conversation": {
       "placeholder": "Type a message...",
@@ -116,7 +116,7 @@
     }
   },
   "tray": {
-    "tooltip": "Noelle Application",
+    "tooltip": "Echo Application",
     "showWindow": "Show Window",
     "exit": "Exit"
   },
@@ -138,6 +138,6 @@
     }
   },
   "app": {
-    "title": "Diona Application"
+    "title": "Echo Application"
   }
 }

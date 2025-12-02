@@ -35,6 +35,6 @@ import i18n from './i18n';
 import errorHandler from './utils/errorHandler';
 
 createApp(App)
-.use(await i18n)
+.use(i18n)
 .use(errorHandler)
 .mount('#app');
