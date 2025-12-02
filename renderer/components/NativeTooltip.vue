@@ -31,11 +31,11 @@ watch(()=>props.content,(newVal)=>{
 
 <template>
     <template v-if="slots.default?.()[0].el">
-        //slot是html元素，需要给slot的第一个元素加title属性
+        <!-- slot是html元素，需要给slot的第一个元素加title属性 -->
         <slot></slot>
     </template>
     <template v-else>
-        //slot不存在或者slot的第一个元素不是html元素，则使用span包裹，并加title属性
+        <!--slot不存在或者slot的第一个元素不是html元素，则使用span包裹，并加title属性-->
         <span :title="content">
             <slot></slot>
         </span>

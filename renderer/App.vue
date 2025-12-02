@@ -3,15 +3,16 @@ import { NConfigProvider } from 'naive-ui';
 import TitleBar from './components/TitleBar.vue';
 import DragRegion from './components/DragRegion.vue';
 import NavBar from './components/NavBar.vue';
+import ResizeDivider from './components/ResizeDivider.vue';
 
 onMounted(() => {
   console.log('App mounted');
 });
-
+const sidebarWidth = ref(320);
 </script>
 <template>
   <n-config-provider class="h-full w-[100vw] flex text-tx-primary">
-    <aside class="sidebar h-full flex flex-shrink-0 flex-col bg-amber-600 w-[320px]">
+          <aside class="sidebar h-full flex flex-shrink-0 flex-col" :style="{ width: sidebarWidth + 'px' }">
       <div class="flex-auto flex">
         <nav-bar />
         <div class="flex-auto">
@@ -19,6 +20,7 @@ onMounted(() => {
         </div>
       </div>
     </aside>
+    <resize-divider direction="vertical" v-model:size="sidebarWidth" :max-size="800" :min-size="320" />
     <div class="flex-auto ">
       <title-bar title="Echo">
         <drag-region class="w-full">Echo</drag-region>
