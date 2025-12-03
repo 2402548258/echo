@@ -35,7 +35,7 @@ function handleClose() {
         <div class="title-bar-main flex-auto">
             <slot>{{ title ?? '' }}</slot>
         </div>
-        <div class="title-bar-controls w-[80px] flex items-center justify-end text-tx-primary">
+        <div class="title-bar-controls w-[80px] flex items-center text-tx-primary">
             <native-tooltip :content="$t('window.minimize')">
                 <button v-show="isMinimizable" class="title-bar-button cursor-pointer hover:bg-input"
                     @click="minimizeWindow">
@@ -52,7 +52,7 @@ function handleClose() {
                 </button>
             </native-tooltip>
             <native-tooltip :content="$t('window.close')">
-                <button v-show="isClosable" class="close-button title-bar-button cursor-pointer hover:bg-red-300 "
+                <button v-show="isClosable" class="close-button title-bar-button cursor-pointer hover:bg-input "
                     @click="handleClose">
                     <iconify-icon icon="material-symbols:close" :width="btnSize" :height="btnSize"></iconify-icon>
                 </button>

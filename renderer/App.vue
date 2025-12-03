@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { NConfigProvider } from 'naive-ui';
-import TitleBar from './components/TitleBar.vue';
-import DragRegion from './components/DragRegion.vue';
 import NavBar from './components/NavBar.vue';
 import ResizeDivider from './components/ResizeDivider.vue';
+import ConversationList  from './components/ConversationList/index.vue'
 
 onMounted(() => {
   console.log('App mounted');
@@ -12,19 +11,15 @@ const sidebarWidth = ref(320);
 </script>
 <template>
   <n-config-provider class="h-full w-[100vw] flex text-tx-primary">
-          <aside class="sidebar h-full flex flex-shrink-0 flex-col" :style="{ width: sidebarWidth + 'px' }">
-      <div class="flex-auto flex">
+    <aside class="sidebar h-full flex flex-shrink-0 flex-col" :style="{ width: sidebarWidth + 'px' }">
+      <div class="flex justify-between">
         <nav-bar />
-        <div class="flex-auto">
-          list
-        </div>
+        <conversation-list class="flex-auto" :width="sidebarWidth"/>
       </div>
     </aside>
     <resize-divider direction="vertical" v-model:size="sidebarWidth" :max-size="800" :min-size="320" />
     <div class="flex-auto ">
-      <title-bar title="Echo">
-        <drag-region class="w-full">Echo</drag-region>
-      </title-bar>
+      <router-view />
       <div>
         Main
       </div>

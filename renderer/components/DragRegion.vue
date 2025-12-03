@@ -1,3 +1,7 @@
+<script setup>
+defineOptions({ name: 'DragRegion' });
+</script>
+
 <template>
     <div class="drag-region">
         <slot>

@@ -29,12 +29,35 @@
 import './styles/index.css';
 import 'vfonts/Lato.css';
 
-import { createApp } from 'vue';
+import { createApp, type Plugin } from 'vue';
 import App from './App.vue';
 import i18n from './i18n';
 import errorHandler from './utils/errorHandler';
+import { createMemoryHistory, createRouter } from 'vue-router';
+import TitleBar from './components/TitleBar.vue';
+import DragRegion from './components/DragRegion.vue';
+
+const router = createRouter({
+    history: createMemoryHistory(),
+    routes: [{
+        path: '/',
+        component:() => import('./view/index.vue')
+    }],
+})
+
+const components: Plugin = function (app) {
+    app.component(TitleBar.name!, TitleBar);
+    app.component(DragRegion.name!, DragRegion);
+}
+
+const pinia = createPinia()
+
+
 
 createApp(App)
+.use(pinia)
+.use(components)
+.use(router)
 .use(i18n)
 .use(errorHandler)
 .mount('#app');
