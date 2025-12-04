@@ -10,6 +10,10 @@ interface WindowApi {
     isDarkTheme: () => Promise<boolean>;
     onSystemThemeChange: (callback: (isDark: boolean) => void) => void;
 
+    showContextMenu: (menuId: string, dynamicOptions?: string) => Promise<any>;
+    contextMenuItemClick: (menuId: string, cb: (id: string) => void) => void;
+    removeContextMenuListener: (menuId: string) => void;
+
     logger: {
         debug: (message: string, ...meta?: any[]) => void;
         info: (message: string, ...meta?: any[]) => void;

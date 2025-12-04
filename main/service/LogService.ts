@@ -157,6 +157,11 @@ class LogService {
     }
 
 
+    public logUserOperation(operation: string, userId: string = 'unknown', details: any = {}): void {
+        this.info(`User Operation: ${operation} by ${userId}, Details: ${JSON.stringify(details)}`);
+    }
+
+
 }
 
 export const logManager = LogService.getInstance()

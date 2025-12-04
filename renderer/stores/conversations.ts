@@ -10,3 +10,15 @@ export const useConversationsStore = defineStore('conversations', () =>{
         getConversations
     }
 });
+
+export const useNameStore = defineStore('name', {
+state: ()=>({name:''  }),
+getters:{
+    getName:(state)=>state.name
+},
+actions:{
+    setName(newName:string){
+        this.name=newName;
+    }
+}
+})

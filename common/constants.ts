@@ -12,6 +12,7 @@ export enum IPC_EVENTS {
     LOG_WARN = 'log-warn',
     LOG_ERROR = 'log-error',
     LOG_FATAL = 'log-fatal',
+    SHOW_CONTEXT_MENU = 'show-context-menu',
 
     THEME_MODE_UPDATED = 'theme-mode-updated',
     THEME_MODE_UPDATED_ALL = 'theme-mode-updated-all',
@@ -32,3 +33,27 @@ export const MAIN_WIN_SIZE = {
     minWidth: 1024,
     minHeight: 800,
 } as const
+
+export enum MENU_IDS {
+    CONVERSATION_ITEM = 'conversation-item',
+    CONVERSATION_LIST = 'conversation-list',
+    MESSAGE_ITEM = 'message-item',
+}
+
+export enum CONVERSATION_ITEM_MENU_IDS {
+    PIN = 'pin',
+    RENAME = 'rename',
+    DEL = 'del',
+}
+
+export enum CONVERSATION_LIST_MENU_IDS {
+    NEW_CONVERSATION = 'newConversation',
+    SORT_BY = 'sortBy',
+    SORT_BY_CREATE_TIME = 'sortByCreateTime',
+    SORT_BY_UPDATE_TIME = 'sortByUpdateTime',
+    SORT_BY_NAME = 'sortByName',
+    SORT_BY_MODEL = 'sortByModel',
+    SORT_ASCENDING = 'sortAscending',
+    SORT_DESCENDING = 'sortDescending',
+    BATCH_OPERATIONS = 'batchOperations',
+}

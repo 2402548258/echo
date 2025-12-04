@@ -13,6 +13,14 @@ import { debounce } from '@common/utils';
 import path from 'node:path';
 import ThemeService from './ThemeService';
 
+
+
+interface WindowState {
+  instance: BrowserWindow | void;
+  isHidden: boolean;
+  onCreate: ((window: BrowserWindow) => void)[];
+  onClosed: ((window: BrowserWindow) => void)[];
+}
 // 新窗口可接受的尺寸配置，供调用 create 时传入
 interface SizeOptions {
   width: number;
@@ -41,6 +49,9 @@ const SHARED_WINDOW_OPTIONS = {
 // 单例服务，集中管理窗口创建、IPC、生命周期
 class WindowService {
   private static _instance: WindowService;
+  private _windowStates: Record<WindowNames|string, WindowState> = {
+    main: { instance: void 0, isHidden: false, onCreate: [], onClosed: [] }
+  };
 
   private constructor() {
     this._setupIpcEvents(); // 构造时只注册一次 IPC 监听
@@ -81,6 +92,7 @@ class WindowService {
     });
 
     this._setupWinLifecycle(window, name)._loadWindowTemplate(window, name);
+    this._windowStates[name].onCreate.forEach(callback => callback(window));
     return window;
   }
 
@@ -99,6 +111,7 @@ class WindowService {
       window.show();
     });
     window.once('closed', () => {
+      this._windowStates[_name].onClosed.forEach(callback => callback(window));
       window?.destroy();
       window?.removeListener('resize', updateWinStatus);
     });
@@ -130,6 +143,14 @@ class WindowService {
   public toggleMax(target: BrowserWindow | void | null) {
     if (!target) return;
     target.isMaximized() ? target.unmaximize() : target.maximize();
+  }
+
+  public onWindowCreate(name: WindowNames, callback: (window: BrowserWindow) => void) {
+    this._windowStates[name].onCreate.push(callback);
+  }
+
+  public onWindowClosed(name: WindowNames, callback: (window: BrowserWindow) => void) {
+    this._windowStates[name].onClosed.push(callback);
   }
 }
 
