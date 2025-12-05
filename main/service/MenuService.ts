@@ -100,8 +100,7 @@ class MenuService {
             if (!isArray(_dynamicOptions) || _dynamicOptions.length === 0) {
                 return translateItem(item)
             }
-            translateItem(mergeSubItem(item, _dynamicOptions))
-            return translateItem(item)
+            return translateItem(mergeSubItem(item, _dynamicOptions))
         })
 
         const menu = Menu.buildFromTemplate(localizeTemplate)

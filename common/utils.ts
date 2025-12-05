@@ -1,3 +1,5 @@
+import type { AISetting } from './types';
+import { encode, decode } from 'js-base64';
 
 /**
  * 防抖函数
@@ -46,7 +48,7 @@ export function cloneDeep<T>(obj: T): T {
 
     const clone = Object.assign({}, obj);
     for (const key in clone) {
-        if (Object.prototype.hasOwnProperty.call(clone, key)) {
+        if (Object.prototype.hasOwnProperty.call(clone, key)) {//确认当前 key 是对象自身的属性（排除原型链上的同名属性）
             clone[key] = cloneDeep(clone[key]);
         }
     }
@@ -61,3 +63,22 @@ export function simpleCloneDeep<T>(obj: T): T {
         return obj;
     }
 }
+
+export function stringifyOpenAISetting(setting: AISetting) {
+    try {
+        return encode(JSON.stringify(setting)); //json 转字符串后进行 base64 编码.转 Base64”只是为了得到一个稳定、可携带的字符串表示
+    } catch (error) {
+        console.error('stringifyOpenAISetting failed:', error);
+        return '';
+    }
+}
+
+export function parseOpenAISetting(setting: string) {
+    try {
+        return JSON.parse(decode(setting)) //先进行 base64 解码后转为 json 对象
+    } catch (error) {
+        console.error('parseOpenAISetting failed:', error);
+        return {} as AISetting;
+    }
+}
+
