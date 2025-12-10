@@ -25,6 +25,5 @@ async function createConversation(title?: string) {
 
 <template>
     <slot :create="createConversation">
-        <!-- renderless -->
     </slot>
 </template>

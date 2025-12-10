@@ -23,7 +23,7 @@ export const useConversationsStore = defineStore('conversations', () =>{
     const sortBy = ref<SortBy>(getSortBy ?? 'createAt');
     const sortOrder = ref<SortOrder>(getSortOrder ?? 'desc');
 //getters
-    const allconversations = computed(() => {conversations.value})
+    const allconversations = computed(() => conversations.value)
 //actions
     async function initConversations() {
         conversations.value = await database.conversations.toArray();
