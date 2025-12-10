@@ -107,7 +107,7 @@ class WindowService {
       }
     }, 80);
     window.once('ready-to-show', () => {
-      window.webContents.openDevTools();  // 打开开发者工具
+      // window.webContents.openDevTools();  // 打开开发者工具
       window.show();
     });
     window.once('closed', () => {

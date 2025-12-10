@@ -1,6 +1,7 @@
 import { Conversation, Message, Provider } from "@common/types";
 import { stringifyOpenAISetting } from "@common/utils";
 import Dexie, { EntityTable } from "dexie";
+import logger from "./utils/logger";
 
 
 export const providers: Provider[] = [
@@ -65,4 +66,13 @@ database.version(1).stores({
     conversations: '++id,providerId',
     messages: '++id,conversationId',
 })
+
+export async function initProvider() {
+    const count = await database.providers.count()
+    if( count === 0 ){
+        await database.providers.bulkAdd(providers)
+        logger.info('initProvider successfully')
+    }
+    
+}
 

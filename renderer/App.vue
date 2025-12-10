@@ -3,8 +3,13 @@ import { NConfigProvider } from 'naive-ui';
 import NavBar from './components/NavBar.vue';
 import ResizeDivider from './components/ResizeDivider.vue';
 import ConversationList  from './components/ConversationList/index.vue'
+import { initProvider } from './dataBase';
+import { useProvidersStore } from './stores/providers';
 
+const providersStore = useProvidersStore();
 onMounted(() => {
+  initProvider()
+  providersStore.initialize()
   console.log('App mounted');
 });
 const sidebarWidth = ref(320);
@@ -18,11 +23,8 @@ const sidebarWidth = ref(320);
       </div>
     </aside>
     <resize-divider direction="vertical" v-model:size="sidebarWidth" :max-size="800" :min-size="320" />
-    <div class="flex-auto ">
-      <router-view />
-      <div>
-        Main
-      </div>
+    <div class="flex-auto ">  
+        <router-view />
     </div>
   </n-config-provider>
 </template>

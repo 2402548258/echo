@@ -4,7 +4,7 @@ const searchKey = ref('')
 export function useFilter() {
     const conversionStore = useConversationsStore()
     const filterconversitions = computed(() => {
-        return conversionStore.getConversations
+        return conversionStore.conversations
     })
     return{
         searchKey,

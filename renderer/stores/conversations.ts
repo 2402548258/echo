@@ -83,8 +83,6 @@ export const useConversationsStore = defineStore('conversations', () =>{
     }
 
     watch([() => sortBy.value, () => sortOrder.value], ([newSortBy, newsortOrder]) => {
-        sortBy.value = newSortBy 
-        sortOrder.value = newsortOrder
         saveSortMode({ sortBy: newSortBy, sortOrder: newsortOrder})
     })
     return {
