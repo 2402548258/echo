@@ -33,3 +33,9 @@ body {
 .drag-region {
   -webkit-app-region: drag;
 }
+
+@layer utilities {
+  .scrollbar-primary::-webkit-scrollbar { width: 8px; }
+  .scrollbar-primary::-webkit-scrollbar-thumb { background: var(--color-primary);  }
+  .scrollbar-primary { scrollbar-width: thin; scrollbar-color: var(--color-primary) transparent; }
+}

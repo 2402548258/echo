@@ -14,6 +14,7 @@ const SortOrderIdMap = new Map([
     ['asc', CONVERSATION_LIST_MENU_IDS.SORT_ASCENDING],
 ])
 
+const isBatchOperate = ref(false);
 export function useContextMenu() {
     const router = useRouter();
     const route = useRoute();
@@ -21,7 +22,7 @@ export function useContextMenu() {
 
     const actionPolicy = new Map([
         [CONVERSATION_LIST_MENU_IDS.BATCH_OPERATIONS, () => {
-            console.log('batch operations');
+            isBatchOperate.value = !isBatchOperate.value;
         }],
         [CONVERSATION_LIST_MENU_IDS.NEW_CONVERSATION, () => {
             console.log('new conversation');
@@ -41,7 +42,6 @@ export function useContextMenu() {
         const sortById = SortByIdMap.get(sortBy) ?? '';
         const sortOrderId = SortOrderIdMap.get(sortOrder) ?? '';
         const newConversationEnabled = !!route.params.id
-        console.log(sortById);
         const item = await createMenu(MENU_IDS.CONVERSATION_LIST, void 0, [
             { id: CONVERSATION_LIST_MENU_IDS.NEW_CONVERSATION, enabled: newConversationEnabled },
             { id: sortById, checked: true },
@@ -56,21 +56,22 @@ export function useContextMenu() {
         [CONVERSATION_ITEM_MENU_IDS.DEL, async () => {
             console.log('删除');
         }],
-        [CONVERSATION_ITEM_MENU_IDS.RENAME, async () => {
-            console.log('重命名');
+        [CONVERSATION_ITEM_MENU_IDS.RENAME, async (item: Conversation, callback: (id: number) => void) => {
+            callback(item.id);
         }],
         [CONVERSATION_ITEM_MENU_IDS.PIN, async (item: Conversation) => {
             await conversationsStore.changePinConversation(item.id);
         }],
     ])
 
-    async function handleItemContextMenu(_item: Conversation) {
+    async function handleItemContextMenu(_item: Conversation,callback?: (id: number) => void) {
         const clickItem = await createMenu(MENU_IDS.CONVERSATION_ITEM, void 0) as CONVERSATION_ITEM_MENU_IDS;
         const action = conversationItemActionPolicy.get(clickItem);
-        action && await action?.(_item);
+        action && await action?.(_item,callback!);
     }
 
     return {
+        isBatchOperate,
         handleListContextMenu:handle,
         handleItemContextMenu
     }

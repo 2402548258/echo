@@ -60,13 +60,22 @@ export function useFilter() {
         ]
     })
     const updateSearchKey = debounce((key: string) => {
+        
         _searchKey.value = key
     },300)
     const filterconversitions = computed(() => {
         if (!_searchKey.value.trim()){
             return sortConversations.value
         }
-        return sortConversations.value.filter(item => item?.title.toLowerCase().includes(_searchKey.value.toLowerCase().trim()))
+        console.log(_searchKey.value.toLowerCase().trim());
+        const filtered = sortConversations.value.filter(item => {
+            const title = item?.title ?? '';
+            return title.toLowerCase().includes(_searchKey.value.toLowerCase().trim());
+        });
+        if (filtered.filter(item => item.pinned).length === 0 && filtered.filter(item => item.type==='divider').length>0){
+            sortConversations.value.splice(sortConversations.value.findIndex(item => item.type==='divider'),1)
+        }
+        return filtered
     })
     watch(searchKey, (newVal) => {
         updateSearchKey(newVal)
