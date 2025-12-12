@@ -7,10 +7,12 @@ import { CTX_KEY } from './constants';
 
 interface ItemTitleProps {
     title: string;
+    isEditable: boolean;
 }
 
 const props = defineProps<ItemTitleProps>();
-
+    const emit = defineEmits(['updateTitle']);
+const _title = ref(props.title);
 
 const isTitleOverflow = ref(false);
 const titleRef = useTemplateRef<HTMLElement>('titleRef');
@@ -22,6 +24,10 @@ function checkOverflow(element: HTMLElement | null): boolean {
 
 function _updateOverflowStatus() {
     isTitleOverflow.value = checkOverflow(titleRef.value);
+}
+
+function updateTitle() {
+    emit('updateTitle', _title.value);
 }
 
 

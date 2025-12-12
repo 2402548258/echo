@@ -28,7 +28,8 @@ const selectedProvider = defineModel<SelectValue>('provider')
 const isBtnDisabled = computed(() => {
     if(props.status === 'loading') return true
     if(props.status === 'streaming') return false
-    if(!selectedProvider) return true
+    console.log(selectedProvider.value);
+    if(selectedProvider) return false
     return message.value.length === 0
 })
 const { t } = useI18n();
