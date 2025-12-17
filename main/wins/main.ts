@@ -70,3 +70,4 @@ const registerMenus = (window: BrowserWindow) => {
 }
 
 
+  

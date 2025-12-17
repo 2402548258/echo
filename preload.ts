@@ -1,7 +1,7 @@
 // See the Electron documentation for details on how to use preload scripts:
 // https://www.electronjs.org/docs/latest/tutorial/process-model#preload-scripts
 import { contextBridge, ipcRenderer } from 'electron';
-import { IPC_EVENTS } from '@common/constants';
+import { IPC_EVENTS, WINDOW_NAMES } from '@common/constants';
 
 const api: WindowApi = {
     closeWindow: () => ipcRenderer.send(IPC_EVENTS.CLOSE_WINDOW),
@@ -18,6 +18,23 @@ const api: WindowApi = {
     showContextMenu: (menuId: string, dynamicOptions?: string) => ipcRenderer.invoke(IPC_EVENTS.SHOW_CONTEXT_MENU, menuId, dynamicOptions),
     contextMenuItemClick: (menuId: string, cb: (id: string) => void) => ipcRenderer.on(`${IPC_EVENTS.SHOW_CONTEXT_MENU}:${menuId}`, (_, id) => cb(id)),
     removeContextMenuListener: (menuId: string) => ipcRenderer.removeAllListeners(`${IPC_EVENTS.SHOW_CONTEXT_MENU}:${menuId}`),
+
+    viewIsReady: () => ipcRenderer.send(IPC_EVENTS.RENDERER_IS_READY),
+
+    createDialog: (params: CreateDialogProps) => new Promise<string>(async (resolve) => {
+        const feedback = await ipcRenderer.invoke(`${IPC_EVENTS.OPEN_WINDOW}:${WINDOW_NAMES.DIALOG}`, params)
+        if(feedback=== 'confirm'){
+            params.onConfirm?.();
+        }
+        if(feedback=== 'cancel'){
+            params.onCancel?.();
+        }
+        resolve(feedback);
+    }),
+     
+    _dialogFeedback: (val: 'cancel' | 'confirm', winId: number) => ipcRenderer.send(WINDOW_NAMES.DIALOG + val, winId),
+    _dialogGetParams: () => ipcRenderer.invoke(WINDOW_NAMES.DIALOG + 'get-params') as Promise<CreateDialogProps>,
+
     
     logger: {
         debug: (message: string, ...meta: any[]) => ipcRenderer.send(IPC_EVENTS.LOG_DEBUG, message, ...meta),

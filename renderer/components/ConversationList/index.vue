@@ -1,23 +1,22 @@
 <script setup lang="ts">
-import { useFilter } from './useFilter';
 import SearchBar from './SearchBar.vue';
 import ListItem from './ListItem.vue';
 import { CTX_KEY } from './constants';
 import { useContextMenu } from './useContextMenu';
 import { useConversationsStore } from '@renderer/stores/conversations';
-import { CONVERSATION_ITEM_MENU_IDS } from '@common/constants';
 import OperationsBar from './OperationsBar.vue';
+
 
 defineOptions({
     name: 'ConversationList'
 });
-const { conversations } = useFilter()
+
 
 const props = defineProps<{ width: number }>()
 const editId = ref<number | undefined>();
-const checkedIds = ref<number[]>([]);
 const conversationsStore = useConversationsStore();
-const { handleListContextMenu, handleItemContextMenu, isBatchOperate } = useContextMenu()
+const { handleListContextMenu, handleItemContextMenu, isBatchOperate, conversations, 
+    checkedIds, handleAllSelectChange, handleBatchOperate } = useContextMenu()
 
 
 provide(CTX_KEY, {
@@ -25,6 +24,7 @@ provide(CTX_KEY, {
     editId: computed(() => editId.value),
     checkedIds: checkedIds
 })
+
 
 function updateTitle(id: number, title: string) {
     const target = conversationsStore.conversations.find(item => item.id === id);
@@ -36,33 +36,13 @@ function updateTitle(id: number, title: string) {
     editId.value = void 0;
 }
 
-const batchActionPolicy = new Map([
-    [CONVERSATION_ITEM_MENU_IDS.DEL, async () => {
-        // TODO
-    }],
-    [CONVERSATION_ITEM_MENU_IDS.PIN, async () => {
-        checkedIds.value.forEach((id) => {
-            conversationsStore.changePinConversation(id)
-        })
-        isBatchOperate.value = false;
-    }]
-])
-function handleAllSelectChange(checked: boolean){
-    checkedIds.value = checked ? conversations.value.map(item => item.id) : [];
-}
 
-function handleBatchOperate(id:CONVERSATION_ITEM_MENU_IDS){
-    const action = batchActionPolicy.get(id);
-    action && action();
-}
 
 const rename = (id: number) => {
     editId.value = id;
 };
 
-watch(()=> conversations.value, ()=> {
-    
-})
+
 
 </script>
 

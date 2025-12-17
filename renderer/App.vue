@@ -14,13 +14,14 @@ onMounted(() => {
   providersStore.initialize()
   conversationsStore.initConversations()
   console.log('App mounted');
+  window.api.viewIsReady();
 });
 const sidebarWidth = ref(320);
 </script>
 <template>
   <n-config-provider class="h-full w-[100vw] flex text-tx-primary">
     <aside class="sidebar h-full flex flex-shrink-0 flex-col" :style="{ width: sidebarWidth + 'px' }">
-      <div class="flex justify-between">
+      <div class="h-full flex justify-between">
         <nav-bar />
         <conversation-list class="flex-auto" :width="sidebarWidth"/>
       </div>
