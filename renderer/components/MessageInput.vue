@@ -28,7 +28,6 @@ const selectedProvider = defineModel<SelectValue>('provider')
 const isBtnDisabled = computed(() => {
     if(props.status === 'loading') return true
     if(props.status === 'streaming') return false
-    console.log(selectedProvider.value);
     if(selectedProvider) return false
     return message.value.length === 0
 })
@@ -44,7 +43,7 @@ const handelSend = () => {
     emits('send',message.value)
 }
 
-watch (() => selectedProvider.value,(val) => emits('select',val))
+// watch (() => selectedProvider.value,(val) => emits('select',val))
 
 </script>
 

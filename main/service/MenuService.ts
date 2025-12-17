@@ -84,9 +84,11 @@ class MenuService {
             const _dynamicOptions = dynamicOptions ?? [];
             const dynamicOption = _dynamicOptions.find(opt => opt.id === item.id);
             const merged = dynamicOption ? { ...item, ...dynamicOption } : item;
+            //匹配到直接返回合并后的结果
             if (dynamicOption) {
                 return merged
             }
+            //否则继续往下找子菜单
             if (!merged.submenu) return merged;
             return {
                 ...merged,
@@ -112,6 +114,7 @@ class MenuService {
             }
         })
     }
+
 
 
 }

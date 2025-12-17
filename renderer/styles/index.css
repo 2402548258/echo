@@ -39,3 +39,17 @@ body {
   .scrollbar-primary::-webkit-scrollbar-thumb { background: var(--color-primary);  }
   .scrollbar-primary { scrollbar-width: thin; scrollbar-color: var(--color-primary) transparent; }
 }
+
+.dialog-overlay {
+  opacity: 0;
+  transition: opacity 0.8s ease;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  z-index: 9999;
+  &.show {
+    opacity: 1;
+  }
+}

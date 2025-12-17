@@ -25,6 +25,7 @@
       },
       "operations": {
         "pin": "置顶所选",
+        "unpin": "取消置顶所选",
         "del": "删除所选",
         "selectAll": "全选",
         "cancel": "取消"

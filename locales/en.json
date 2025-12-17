@@ -25,6 +25,7 @@
       },
       "operations": {
         "pin": "Pin Selected",
+        "unpin": "Unpin Selected",
         "del": "Delete Selected",
         "selectAll": "Select All",
         "cancel": "Cancel"

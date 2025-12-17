@@ -80,7 +80,8 @@ export function useContextMenu() {
 
 
     async function handleItemContextMenu(_item: Conversation,callback?: (id: number) => void) {
-        const clickItem = await createMenu(MENU_IDS.CONVERSATION_ITEM, void 0) as CONVERSATION_ITEM_MENU_IDS;
+        const label = _item.pinned ? 'main.conversation.operations.unpin' : 'main.conversation.operations.pin';
+        const clickItem = await createMenu(MENU_IDS.CONVERSATION_ITEM, void 0, [{ label: label, id: CONVERSATION_ITEM_MENU_IDS.PIN }]) as CONVERSATION_ITEM_MENU_IDS;
         const action = conversationItemActionPolicy.get(clickItem);
         action && await action?.(_item,callback!);
     }
@@ -88,7 +89,7 @@ export function useContextMenu() {
 
     const batchActionPolicy = new Map([
         [CONVERSATION_ITEM_MENU_IDS.DEL, async () => {
-            const res = await createDialog({
+            const res =  await createDialog({
                 title: 'main.conversation.dialog.title',
                 content: 'main.conversation.dialog.content_1',
             })

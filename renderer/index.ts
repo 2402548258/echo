@@ -41,7 +41,18 @@ const router = createRouter({
     history: createMemoryHistory(),
     routes: [{
         path: '/',
-        component:() => import('./view/index.vue')
+        component: () => import('./view/index.vue'),
+        children: [
+            {
+                path: '/',
+                redirect: 'conversation'
+            },
+            {
+                name: 'conversation',
+                path: 'conversation/:id?',
+                component: () => import('./view/conversation.vue')
+            }
+        ]
     }],
 })
 
@@ -55,9 +66,9 @@ const pinia = createPinia()
 
 
 createApp(App)
-.use(pinia)
-.use(components)
-.use(router)
-.use(i18n)
-.use(errorHandler)
-.mount('#app');
+    .use(pinia)
+    .use(components)
+    .use(router)
+    .use(i18n)
+    .use(errorHandler)
+    .mount('#app');
