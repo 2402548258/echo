@@ -7,6 +7,7 @@ import CreateConversation from '@renderer/components/CreateConversation.vue';
 import ResizeDivider from '../components/ResizeDivider.vue';
 import MessageList from '@renderer/components/MessageList.vue';
 import { messages } from '@renderer/testData';
+import { useMessagesStore } from '@renderer/stores/messages';
 
 const route = useRoute();
 const router = useRouter();
@@ -21,6 +22,7 @@ const provider = ref<SelectValue>();
 //拆分select的value: `${item.id}:${model}`,
 const providerId = computed(() => ((provider.value as string)?.split(':')[0] ?? ''));
 const selectedModel = computed(() => ((provider.value as string)?.split(':')[1] ?? ''));
+const messagesStore = useMessagesStore();
 const handleCreateConversation = async (create: (title?: string) => Promise<number | void>, message: string) => {
     const conversationId = await create(message);
     if (!conversationId) return
@@ -40,10 +42,13 @@ window.onresize = throttle(async () => {
     maxListHeight.value = window.innerHeight * 0.7;
 }, 40);
 
-onMounted(async() => {
-    await nextTick();
-    listHeight.value = window.innerHeight * listScale.value;
+onBeforeRouteUpdate(async (to, from, next) => {
+    if (to.params.id === from.params.id) return next();
+    await messagesStore.initialize(Number(to.params.id));
+    next();
 });
+
+
 
 watch(() => listHeight.value, () => listScale.value = listHeight.value / window.innerHeight);
 </script>

@@ -27,7 +27,7 @@ defineProps<{
                             <!-- TODO: timeAgo -->
                             {{ message.createdAt }} 
                         </div>
-                        <div class="msg-shadow p-2 rounded-md bg-bubble-self text-white"
+                        <div class="msg-shadow p-2 px-6 rounded-md bg-bubble-self text-white"
                             v-if="message.type === 'question'">
                             <message-render :msg-id="message.id" :content="message.content"
                                 :is-streaming="message.status === 'streaming'" />

@@ -41,7 +41,7 @@ export function cloneDeep<T>(obj: T): T {
     if (obj === null || typeof obj !== 'object') {
         return obj;
     }
-
+ 
     if (Array.isArray(obj)) {
         return obj.map(item => cloneDeep(item)) as T;
     }
@@ -80,5 +80,17 @@ export function parseOpenAISetting(setting: string) {
         console.error('parseOpenAISetting failed:', error);
         return {} as AISetting;
     }
+}
+
+
+export function uniqueByKey<T extends Record<string, any>>(arr: T[], key: keyof T): T[] {
+    const seen = new Map<any, boolean>();
+    arr.filter(item => {
+        const value = item[key];
+        if(seen.has(value)) return false
+        seen.set(value, true);
+        return true;
+    } )
+    return arr
 }
 
