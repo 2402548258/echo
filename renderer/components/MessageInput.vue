@@ -28,7 +28,7 @@ const selectedProvider = defineModel<SelectValue>('provider')
 const isBtnDisabled = computed(() => {
     if(props.status === 'loading') return true
     if(props.status === 'streaming') return false
-    if(selectedProvider) return false
+    if(!selectedProvider.value) return true
     return message.value.length === 0
 })
 const { t } = useI18n();
@@ -39,11 +39,14 @@ const btnTipContent = computed(() => {
 });
 
 const handelSend = () => {
-    if(props.status === 'loading')  return emits('stop') 
+    if(props.status === 'streaming')  return emits('stop') 
     emits('send',message.value)
 }
 
-// watch (() => selectedProvider.value,(val) => emits('select',val))
+defineExpose({
+    selectedProvider,
+})
+
 
 </script>
 
@@ -51,7 +54,8 @@ const handelSend = () => {
     <div class="message-input h-full flex flex-col justify-between">
         <textarea class="input-area pt-4 px-2  w-full text-tx-primary placeholder:text-tx-secondary "
             v-model="message" @focus="focused = true" :placeholder="placeholder"
-            @blur="focused = false"></textarea>
+            @blur="focused = false">
+        </textarea>
 
         <div class="bottom-bar h-[40px] flex justify-between items-center p-2 mb-2">
             <div class="selecter-container w-[200px]">

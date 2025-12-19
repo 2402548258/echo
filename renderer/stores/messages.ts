@@ -4,6 +4,8 @@ import { uniqueByKey } from "@common/utils";
 import { useConversationsStore } from "./conversations";
 import { useProvidersStore } from "./providers";
 import { listenDialogueBack } from "@renderer/utils/dialogMessage";
+import { messages } from './../testData';
+import i18n from "@renderer/i18n";
 
 const msgContentMap = new Map<number, string>(); //用于存取每次发送的不同块的内容
 export const stopMethods = new Map<number, () => void>();
@@ -11,23 +13,31 @@ export const stopMethods = new Map<number, () => void>();
 export const useMessagesStore = defineStore('messages', () => {
     const conversationsStore = useConversationsStore()
     const providerStore = useProvidersStore()
-//state
+    //state
     const messages = ref<Message[]>([])
-//getters
+    const messagesInputValue = ref(new Map());
+    //getters
     const allMessages = computed(() => messages.value)
-
-    const messagesByConversationId = computed(() => (conversationId: number)=>{
+    const messageInputValueById = computed(() => (conversationId: number) => messagesInputValue.value.get(conversationId) ?? '');
+    const loadingMsgIdsByConversationId = computed(() => (conversationId: number) => messagesByConversationId.value(conversationId).filter(message => message.status === 'loading' || message.status === 'streaming').map(message => message.id));
+    const messagesByConversationId = computed(() => (conversationId: number) => {
         return messages.value.filter(msg => msg.conversationId === conversationId).sort((a, b) => a.createdAt - b.createdAt);
     })
 
+    //actions
+
+
+    function setMessageInputValue(conversationId: number, value: string) {
+        messagesInputValue.value.set(conversationId, value);
+    }
     async function initialize(conversationId: number) {
         const isLocal = messages.value.some(msg => msg.conversationId === conversationId);
-        if(isLocal) return; 
+        if (isLocal) return;
         const dataBaseMessages = await database.messages.where('conversationId').equals(conversationId).toArray();
         messages.value = uniqueByKey([...messages.value, ...dataBaseMessages], 'id');
     }
 
-    async function addMessage(message: Omit<Message, 'id' |'createdAt'>) {
+    async function addMessage(message: Omit<Message, 'id' | 'createdAt'>) {
         const newMessage: Message = {
             ...message,
             createdAt: Date.now(),
@@ -41,19 +51,19 @@ export const useMessagesStore = defineStore('messages', () => {
         return id;
     }
 
-    function _updateConversation(conversationId:number){
+    function _updateConversation(conversationId: number) {
         const conversation = conversationsStore.getConversationById(conversationId);
-        if(!conversation) return;
+        if (!conversation) return;
         conversationsStore.updateConversation(conversation)
     }
 
-    async function sendMessage(message: Omit<Message, 'id' | 'createdAt'>){
+    async function sendMessage(message: Omit<Message, 'id' | 'createdAt'>) {
         await addMessage(message);
         const loadingMsgId = await addMessage({
-          conversationId: message.conversationId,
-          type: 'answer',
-          content: '',
-          status: 'loading',
+            conversationId: message.conversationId,
+            type: 'answer',
+            content: '',
+            status: 'loading',
         });
         const conversation = conversationsStore.getConversationById(message.conversationId);
 
@@ -66,7 +76,7 @@ export const useMessagesStore = defineStore('messages', () => {
         msgContentMap.set(loadingMsgId, '');
 
         let streamCallback: ((stream: DialogueBackStream) => Promise<void>) | void = async (stream) => {
-            const { messageId, data} = stream;
+            const { messageId, data } = stream;
             const getStatus = (data: DialogueBackStream['data']): MessageStatus => {
                 if (data.isError) return 'error';
                 if (data.isEnd) return 'success';
@@ -79,11 +89,11 @@ export const useMessagesStore = defineStore('messages', () => {
                 updatedAt: Date.now(),
             }
             await updateMessage(messageId, _updateMsg);
-            if(data.isEnd){
+            if (data.isEnd) {
                 msgContentMap.delete(messageId);
             }
         }
-        stopMethods.set(loadingMsgId,listenDialogueBack(streamCallback,loadingMsgId)) //得到stop并开启监听
+        stopMethods.set(loadingMsgId, listenDialogueBack(streamCallback, loadingMsgId)) //得到stop并开启监听
         const messages = messagesByConversationId.value(message.conversationId).filter(item => item.status !== 'loading').map(item => ({
             role: item.type === 'question' ? 'user' : 'assistant' as DialogueMessageRole,
             content: item.content,
@@ -97,7 +107,27 @@ export const useMessagesStore = defineStore('messages', () => {
             messages,
         });
     }
-   
+
+    async function stopMessage(id: number, update: boolean = true) {
+        const stop = stopMethods.get(id);
+        stop && stop?.();
+        if (update) {
+            const msgContent = messages.value.find(message => message.id === id)?.content || '';
+            await updateMessage(id, {
+                status: 'success',
+                updatedAt: Date.now(),
+                content: msgContent ? msgContent + i18n.global.t('main.message.stoppedGeneration') : void 0,
+            })
+        }
+        if (msgContentMap.has(id)) {
+            msgContentMap.delete(id);
+        }
+        if (stopMethods.has(id)) {
+            stopMethods.delete(id);
+        }
+
+    }
+
     async function updateMessage(id: number, updates: Partial<Message>) {
         const message = messages.value.find(msg => msg.id === id);
         if (!message) return 0;
@@ -110,11 +140,12 @@ export const useMessagesStore = defineStore('messages', () => {
 
     async function deleteMessage(id: number) {
         const currentMsg = messages.value.find(item => item.id === id);
-        //TODO: stopMessage(id, false);
+        stopMessage(id, false);
         await database.messages.delete(id);
         currentMsg && _updateConversation(currentMsg.conversationId);
         // 从响应式数组中移除
         messages.value = messages.value.filter(message => message.id !== id);
+
     }
 
 
@@ -122,13 +153,17 @@ export const useMessagesStore = defineStore('messages', () => {
         messages,
         allMessages,
         messagesByConversationId,
+        messageInputValueById,
+        loadingMsgIdsByConversationId,
         initialize,
         addMessage,
         sendMessage,
         updateMessage,
         deleteMessage,
+        stopMessage,
+        setMessageInputValue,
     }
 
 
-    
+
 })
