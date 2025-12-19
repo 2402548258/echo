@@ -11,7 +11,7 @@ import { useMessagesStore } from '@renderer/stores/messages';
 
 const route = useRoute();
 const router = useRouter();
-const conversationId = computed(() => route.params.id);
+const conversationId = computed(() => Number(route.params.id));
 const listHeight = ref(0);
 const listScale = ref(0.7);
 const maxListHeight = ref(window.innerHeight * 0.7);
@@ -33,6 +33,12 @@ const afterCreateConversation = (id: number,firstMsg:string) => {
     router.push(`/conversation/${id}`);
     //重置输入框
     message.value = '';
+    messagesStore.sendMessage({
+        conversationId:id,
+        type:'question',
+        content:firstMsg
+    })
+    
 }
 
 window.onresize = throttle(async () => {
@@ -48,6 +54,10 @@ onBeforeRouteUpdate(async (to, from, next) => {
     next();
 });
 
+onMounted(async () => {
+    await nextTick();
+    listHeight.value = window.innerHeight * listScale.value;
+});
 
 
 watch(() => listHeight.value, () => listScale.value = listHeight.value / window.innerHeight);
@@ -71,8 +81,7 @@ watch(() => listHeight.value, () => listScale.value = listHeight.value / window.
     </div>
     <div class="h-full flex flex-col" v-else>
         <div class="w-full min-h-0" :style="{ height: `${listHeight}px` }">
-            <message-list :messages="messages"/>
-
+            <message-list :messages="messagesStore.messagesByConversationId(conversationId)"/>
         </div>
         <div class="input-container bg-bubble-others flex-auto w-[calc(100% + 10px)] ml-[-5px] ">
             <resize-divider direction="horizontal" v-model:size="listHeight" :max-size="maxListHeight"
@@ -81,3 +90,9 @@ watch(() => listHeight.value, () => listScale.value = listHeight.value / window.
         </div>
     </div>
 </template>
+
+<style scoped>
+.input-container {
+    box-shadow: 5px 1px 20px 0px rgba(101, 101, 101, 0.2);
+}
+</style>

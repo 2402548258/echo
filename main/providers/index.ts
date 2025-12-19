@@ -1,19 +1,17 @@
-import { Conversation, Message, Provider } from "@common/types";
+
 import { stringifyOpenAISetting } from "@common/utils";
-import Dexie, { EntityTable } from "dexie";
-import logger from "./utils/logger";
+import { OpenAIProvider } from "./OpenAIProvider";
 
-
-export const providers: Provider[] = [
+const providers= [
     {
         id: 1,
         name: 'bigmodel',
         title: '智谱AI',
         models: ['glm-4.5-flash'],
-        openAISetting: stringifyOpenAISetting({
+        openAISetting: {
             baseURL: 'https://open.bigmodel.cn/api/paas/v4',
             apiKey: '',
-        }),
+        },
         createdAt: new Date().getTime(),
         updatedAt: new Date().getTime()
     },
@@ -22,10 +20,10 @@ export const providers: Provider[] = [
         name: 'deepseek',
         title: '深度求索 (DeepSeek)',
         models: ['deepseek-chat'],
-        openAISetting: stringifyOpenAISetting({
+        openAISetting: {
             baseURL: 'https://api.deepseek.com/v1',
             apiKey: '',
-        }),
+        },
         createdAt: new Date().getTime(),
         updatedAt: new Date().getTime()
     },
@@ -34,10 +32,10 @@ export const providers: Provider[] = [
         name: 'siliconflow',
         title: '硅基流动',
         models: ['Qwen/Qwen3-8B', 'deepseek-ai/DeepSeek-R1-0528-Qwen3-8B'],
-        openAISetting: stringifyOpenAISetting({
+        openAISetting: {
             baseURL: 'https://api.siliconflow.cn/v1',
             apiKey: '',
-        }),
+        },
         createdAt: new Date().getTime(),
         updatedAt: new Date().getTime()
     },
@@ -46,10 +44,10 @@ export const providers: Provider[] = [
         name: 'qianfan',
         title: '百度千帆',
         models: ['ernie-speed-128k', 'ernie-4.0-8k', 'ernie-3.5-8k'],
-        openAISetting: stringifyOpenAISetting({
+        openAISetting: {
             baseURL: 'https://qianfan.baidubce.com/v2',
             apiKey: '',
-        }),
+        },
         createdAt: new Date().getTime(),
         updatedAt: new Date().getTime()
     },
@@ -58,34 +56,29 @@ export const providers: Provider[] = [
         name: 'openai',
         title: 'chatgpt',
         models: ['gpt-5', 'gpt-5.1-medium', 'o4-mini'],
-        openAISetting: stringifyOpenAISetting({
+        openAISetting: {
             baseURL: 'https://ai.liaobots.work/v1',
             apiKey: 'SvpjMec2rNyoN',
-        }),
+        },
         createdAt: new Date().getTime(),
         updatedAt: new Date().getTime()
     },
 ];
 
-export const database = new Dexie('EchoDB') as Dexie & {
-    providers:EntityTable<Provider, 'id'>;
-    conversations:EntityTable<Conversation, 'id'>;
-    messages:EntityTable<Message, 'id'>;
-}
 
-database.version(1).stores({
-    providers: '++id,name',
-    conversations: '++id,providerId',
-    messages: '++id,conversationId',
-})
-
-export async function initProvider() {
-    const count = await database.providers.count()
-    if( count < providers.length ){
-        await database.providers.clear()
-        await database.providers.bulkAdd(providers)
-        logger.info('initProvider successfully')
+export function createProvider(name:string){
+    if (!providers) {
+        throw new Error('provider config not found');
     }
-    
-}
+    for (const provider of providers) {
+        if (provider.name === name) {
+            if (!provider.openAISetting?.apiKey || !provider.openAISetting?.baseURL) {
+                throw new Error('apiKey or baseURL not found');
+            }
+            // TODO: visible
 
+            return new OpenAIProvider(provider.openAISetting.apiKey, provider.openAISetting.baseURL);
+        }
+    }
+
+}

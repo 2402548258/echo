@@ -31,10 +31,18 @@ const api: WindowApi = {
         }
         resolve(feedback);
     }),
-     
     _dialogFeedback: (val: 'cancel' | 'confirm', winId: number) => ipcRenderer.send(WINDOW_NAMES.DIALOG + val, winId),
     _dialogGetParams: () => ipcRenderer.invoke(WINDOW_NAMES.DIALOG + 'get-params') as Promise<CreateDialogProps>,
 
+    startADialogueMessage: (params: CreateDialogMessageProps) => ipcRenderer.send(IPC_EVENTS.START_A_DIALOGUE, params),
+    onDialogueBack: (cb: (data: DialogueBackStream) => void, messageId: number) => {
+
+        const callback = (_event: Electron.IpcRendererEvent, data: DialogueBackStream) => cb(data);
+
+        ipcRenderer.on(IPC_EVENTS.START_A_DIALOGUE + 'back' + messageId, callback);
+
+        return () => ipcRenderer.removeListener(IPC_EVENTS.START_A_DIALOGUE + 'back' + messageId, callback)
+    },
     
     logger: {
         debug: (message: string, ...meta: any[]) => ipcRenderer.send(IPC_EVENTS.LOG_DEBUG, message, ...meta),

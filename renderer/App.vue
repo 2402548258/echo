@@ -19,14 +19,14 @@ onMounted(() => {
 const sidebarWidth = ref(320);
 </script>
 <template>
-  <n-config-provider class="h-full w-[100vw] flex text-tx-primary">
+  <n-config-provider class="h-full w-[100vw] flex text-tx-primary ">
     <aside class="sidebar h-full flex flex-shrink-0 flex-col" :style="{ width: sidebarWidth + 'px' }">
       <div class="h-full flex justify-between">
         <nav-bar />
         <conversation-list class="flex-auto" :width="sidebarWidth"/>
       </div>
     </aside>
-    <resize-divider direction="vertical" v-model:size="sidebarWidth" :max-size="800" :min-size="320" />
+    <resize-divider  direction="vertical" v-model:size="sidebarWidth" :max-size="800" :min-size="320" />
     <div class="flex-auto ">  
         <router-view />
     </div>

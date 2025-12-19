@@ -38,7 +38,6 @@ function updateTitle(id: number, title: string) {
 }
 
 function handleItemClick(item:Conversation){
-    console.log(item.id);
     router.push(`/conversation/${item.id}`);
 }
 

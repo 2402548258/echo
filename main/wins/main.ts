@@ -1,15 +1,46 @@
 import { CONVERSATION_LIST_MENU_IDS, IPC_EVENTS, MAIN_WIN_SIZE, WINDOW_NAMES } from "@common/constants";
 import windowManager from "@main/service/WindowService";
 import menuManager from "@main/service/MenuService";
-import { BrowserWindow } from "electron";
+import { BrowserWindow, ipcMain } from "electron";
 import { MENU_IDS, CONVERSATION_ITEM_MENU_IDS } from "@common/constants";
 import logManager from "@main/service/LogService";
+import { createProvider } from "@main/providers";
 
 export function setupMainWindow() {
      windowManager.onWindowCreate(WINDOW_NAMES.MAIN, (window) => {
           registerMenus(window)
      })
      windowManager.create(WINDOW_NAMES.MAIN, MAIN_WIN_SIZE)
+     ipcMain.on(IPC_EVENTS.START_A_DIALOGUE, async (_, props: CreateDialogMessageProps) => {
+          const { providerName, messages, messageId, selectedModel } = props;
+          const mainWindow = windowManager.getInstance(WINDOW_NAMES.MAIN)
+          if (!mainWindow) {
+               throw new Error('mainWindow not found');
+          }
+          try {
+               const provider = createProvider(providerName);
+               const chunks = await provider?.chat(messages, selectedModel);
+               for await (const chunk of chunks!) {
+                    const content = {
+                         messageId,
+                         data: chunk
+                    }
+                    mainWindow.webContents.send(IPC_EVENTS.START_A_DIALOGUE + 'back' + messageId, content);
+               }
+
+          } catch (error) { 
+               const errorContent = {
+                    messageId,
+                    data: {
+                         isEnd: true,
+                         isError: true,
+                         result: error instanceof Error ? error.message : String(error),
+                    }
+               }
+
+               mainWindow.webContents.send(IPC_EVENTS.START_A_DIALOGUE + 'back' + messageId, errorContent);
+          }
+     })
 }
 
 
@@ -70,4 +101,3 @@ const registerMenus = (window: BrowserWindow) => {
 }
 
 
-  

@@ -66,6 +66,7 @@ watch(() => props.size, (newVal) => {
     width: 5px;
     height: 100%;
     cursor: ew-resize;
+    flex: 0 0 auto;
 }
 .vertical:hover {
     background-color: var(--color-tx-secondary);   
@@ -74,6 +75,7 @@ watch(() => props.size, (newVal) => {
     width: 100%;
     height: 5px;
     cursor: ns-resize;
+    flex: 0 0 auto;
 }
 .horizontal:hover {
     background-color: var(--color-tx-secondary);

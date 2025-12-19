@@ -20,6 +20,10 @@ interface WindowApi {
     _dialogFeedback: (val: 'cancel' | 'confirm', winId: number) => void;
     _dialogGetParams: () => Promise<CreateDialogProps>;
 
+
+    startADialogueMessage: (params: CreateDialogMessageProps) => void;
+    onDialogueBack: (cb: (data: DialogueBackStream) => void, messageId: number) => () => void;
+
     logger: {
         debug: (message: string, ...meta?: any[]) => void;
         info: (message: string, ...meta?: any[]) => void;
@@ -44,4 +48,28 @@ interface CreateDialogProps {
     isModal?: boolean;
     onConfirm?: () => void;
     onCancel?: () => void;
+}
+
+interface CreateDialogMessageProps {
+    messages: DialogueMessageProps[];
+    providerName: string;
+    selectedModel: string;
+    messageId: number;
+    conversationId: number;
+}
+
+type DialogueMessageRole = 'user' | 'assistant'
+interface DialogueMessageProps {
+    role: DialogueMessageRole;
+    content: string;
+}
+
+interface UniversalChunk {
+    isEnd: boolean;
+    result: string;
+}
+
+interface DialogueBackStream {
+    messageId: number;
+    data: UniversalChunk & { isError?: boolean };
 }
