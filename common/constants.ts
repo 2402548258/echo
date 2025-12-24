@@ -30,6 +30,15 @@ export enum WINDOW_NAMES {
     DIALOG = 'dialog',
 }
 
+export enum CONFIG_KEYS {
+    THEME_MODE = 'themeMode',
+    PRIMARY_COLOR = 'primaryColor',
+    LANGUAGE = 'language',
+    FONT_SIZE = 'fontSize',
+    MINIMIZE_TO_TRAY = 'minimizeToTray',
+    PROVIDER = 'provider',
+    DEFAULT_MODEL = 'defaultModel',
+}
 
 export const MAIN_WIN_SIZE = {
     width: 1024,
@@ -60,4 +69,10 @@ export enum CONVERSATION_LIST_MENU_IDS {
     SORT_ASCENDING = 'sortAscending',
     SORT_DESCENDING = 'sortDescending',
     BATCH_OPERATIONS = 'batchOperations',
+}
+
+export enum MESSAGE_ITEM_MENU_IDS {
+    COPY = 'copy',
+    DELETE = 'delete',
+    SELECT = 'select',
 }

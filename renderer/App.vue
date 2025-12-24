@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NConfigProvider } from 'naive-ui';
+import { NConfigProvider, NMessageProvider } from 'naive-ui';
 import NavBar from './components/NavBar.vue';
 import ResizeDivider from './components/ResizeDivider.vue';
 import ConversationList  from './components/ConversationList/index.vue'
@@ -20,6 +20,7 @@ const sidebarWidth = ref(320);
 </script>
 <template>
   <n-config-provider class="h-full w-[100vw] flex text-tx-primary ">
+    <n-message-provider>
     <aside class="sidebar h-full flex flex-shrink-0 flex-col" :style="{ width: sidebarWidth + 'px' }">
       <div class="h-full flex justify-between">
         <nav-bar />
@@ -30,6 +31,7 @@ const sidebarWidth = ref(320);
     <div class="flex-auto ">  
         <router-view />
     </div>
+    </n-message-provider>
   </n-config-provider>
 </template>
 
