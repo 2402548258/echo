@@ -2,17 +2,63 @@
 import type { Message } from '@common/types';
 import { NScrollbar } from 'naive-ui'
 import MessageRender from './MessageRender.vue';
+import { useBatchTimeAgo } from '@renderer/hooks/useTimeAgo';
 
 defineOptions({ name: 'MessageList' });
 
-defineProps<{
+const props = defineProps<{
     messages: Message[];
 }>();
+
+const route = useRoute();
+
+
+const MESSAGE_LIST_CLASS_NAME = 'message-list';
+const SCROLLBAR_CONTENT_CLASS_NAME = 'n-scrollbar-content';
+
+function _getScrollDOM() {
+    const msgListDOM = document.getElementsByClassName(MESSAGE_LIST_CLASS_NAME)[0];
+    if (!msgListDOM) return;
+    return msgListDOM.getElementsByClassName(SCROLLBAR_CONTENT_CLASS_NAME)[0];
+}
+
+async function scrollToBottom(behavior: ScrollIntoViewOptions['behavior'] = 'smooth') {
+    await nextTick();
+    const scrollDOM = _getScrollDOM();
+    if (!scrollDOM) return;
+    scrollDOM.scrollIntoView({
+        behavior,
+        block: 'end',
+    })
+}
+let currentHeight = 0;
+watch([() => route.params.id, () => props.messages.length], () => {
+    scrollToBottom('instant');
+    currentHeight = 0;
+});
+
+watch(
+    () => props.messages[props.messages.length - 1]?.content?.length,
+    async () => {
+        const scrollDOM = _getScrollDOM();
+        if (!scrollDOM) return;
+        await nextTick();
+        const height = scrollDOM.scrollHeight;
+        if (height > currentHeight) {
+            currentHeight = height;
+            scrollToBottom();
+        }
+    },
+);
+
+
+const { formatTimeAgo } = useBatchTimeAgo();
 
 
 </script>
 
 <template>
+
     <div class="flex flex-col h-full">
         <n-scrollbar class="message-list px-5 pt-6">
             <div class="message-list-item mt-3 pb-5 flex items-center" v-for="message in messages" :key="message.id">
@@ -25,7 +71,7 @@ defineProps<{
                         <div class="text-sm text-gray-500 mb-2"
                             :style="{ textAlign: message.type === 'question' ? 'end' : 'start' }">
                             <!-- TODO: timeAgo -->
-                            {{ message.createdAt }} 
+                           {{ formatTimeAgo(message.createdAt) }}
                         </div>
                         <div class="msg-shadow p-2 px-6 rounded-md bg-bubble-self text-white"
                             v-if="message.type === 'question'">
