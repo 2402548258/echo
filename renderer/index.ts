@@ -28,7 +28,6 @@
 
 import './styles/index.css';
 import 'vfonts/Lato.css';
-
 import { createApp, type Plugin } from 'vue';
 import App from './App.vue';
 import i18n from './i18n';
@@ -36,6 +35,10 @@ import errorHandler from './utils/errorHandler';
 import { createMemoryHistory, createRouter } from 'vue-router';
 import TitleBar from './components/TitleBar.vue';
 import DragRegion from './components/DragRegion.vue';
+import hljs from 'highlight.js/lib/core';
+import xml from 'highlight.js/lib/languages/xml';
+
+hljs.registerLanguage('vue', xml);
 
 const router = createRouter({
     history: createMemoryHistory(),
