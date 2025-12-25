@@ -1,6 +1,6 @@
 // 统一维护主窗口逻辑（主进程）并暴露给整个应用复用
 import type { WindowNames } from '@common/types';
-import { IPC_EVENTS, WINDOW_NAMES } from '@common/constants';
+import { CONFIG_KEYS, IPC_EVENTS, WINDOW_NAMES } from '@common/constants';
 import {
   BrowserWindow,
   BrowserWindowConstructorOptions,
@@ -14,6 +14,7 @@ import { debounce } from '@common/utils';
 import path from 'node:path';
 import ThemeService, { themeManager } from './ThemeService';
 import logManager from './LogService';
+import configManager from './ConfigService';
 
 
 
@@ -86,7 +87,7 @@ class WindowService {
   }
 
   private _isReallyClose(windowName: WindowNames | void) {
-    if (windowName === WINDOW_NAMES.MAIN) return true; 
+    if (windowName === WINDOW_NAMES.MAIN) return configManager.getValue(CONFIG_KEYS.MINIMIZE_TO_TRAY) === false; 
     if (windowName === WINDOW_NAMES.SETTING) return false;
     return true;
   }
@@ -120,16 +121,11 @@ class WindowService {
       params.win.once('show', () => setTimeout(() => { this._applySizeConstraints(params.win, params.size) }, 2))
       params.win.show()
     }
-  
-    // if (!params.isHiddenWin){
-    //   const handler = this._addLoadingView(params.win, params.size);
-    //   handler?.(onReady)
-    // }else{
-    //   onReady();
-    // }
-    onReady();
-    
-
+    if (!params.isHiddenWin){
+      const handler = this._addLoadingView(params.win, params.size);
+      handler?.(onReady)
+    }
+      onReady();  
   }
   public static getInstance(): WindowService {
     if (!this._instance) {
@@ -147,10 +143,6 @@ class WindowService {
         );
       }
     }, 80);
-    window.once('ready-to-show', () => {
-      // window.webContents.openDevTools();  // 打开开发者工具
-      window.show();
-    });
     window.once('closed', () => {
       this._windowStates[_name].onClosed.forEach(callback => callback(window));
       window?.destroy();
@@ -233,7 +225,7 @@ class WindowService {
   private _checkAndCloseAllWinodws() {
     if (!this._windowStates[WINDOW_NAMES.MAIN].instance || this._windowStates[WINDOW_NAMES.MAIN].instance?.isDestroyed())
       return Object.values(this._windowStates).forEach(win => win?.instance?.close());
-    const minimizeToTray = false; // todo : 从配置中读取
+    const minimizeToTray = configManager.getValue(CONFIG_KEYS.MINIMIZE_TO_TRAY); 
     if (!minimizeToTray && !this.getInstance(WINDOW_NAMES.MAIN)?.isVisible())
       return Object.values(this._windowStates).forEach(win => !win?.instance?.isVisible() && win?.instance?.close());
   }

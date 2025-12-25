@@ -1,14 +1,17 @@
 import { BrowserWindow, ipcMain, nativeTheme, webContents } from 'electron';
 import { logManager } from './LogService';
-import { IPC_EVENTS } from '@common/constants'
+import { CONFIG_KEYS, IPC_EVENTS } from '@common/constants'
+import {configManager} from './ConfigService'
 
 class ThemeService {
     private static _instance: ThemeService;
     private _isDark: boolean = nativeTheme.shouldUseDarkColors;
     private constructor() {
-        const themeMode = 'dark';
-        nativeTheme.themeSource = themeMode;
-        this._isDark = nativeTheme.shouldUseDarkColors;
+        const themeMode = configManager.getValue(CONFIG_KEYS.THEME_MODE);
+        if(themeMode){
+            nativeTheme.themeSource = themeMode;
+            this._isDark = nativeTheme.shouldUseDarkColors;
+        }
         this._setupIpcEvents();
         logManager.info(`ThemeService initialized. Current theme mode: ${nativeTheme.themeSource}, isDark: ${this._isDark}`);
     }
@@ -25,7 +28,7 @@ class ThemeService {
         })
         ipcMain.on(IPC_EVENTS.THEME_MODE_UPDATED_ALL,()=>{
             this._isDark = nativeTheme.shouldUseDarkColors;
-            BrowserWindow.getAllWindows().forEach(win=>{
+            BrowserWindow.getAllWindows().forEach(win=>{ 
                 win.webContents.send(IPC_EVENTS.THEME_MODE_UPDATED,this._isDark);
             })
             

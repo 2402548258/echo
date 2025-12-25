@@ -1,13 +1,20 @@
-import { CONVERSATION_LIST_MENU_IDS, IPC_EVENTS, MAIN_WIN_SIZE, MESSAGE_ITEM_MENU_IDS, WINDOW_NAMES } from "@common/constants";
+import { CONFIG_KEYS, CONVERSATION_LIST_MENU_IDS, IPC_EVENTS, MAIN_WIN_SIZE, MESSAGE_ITEM_MENU_IDS, WINDOW_NAMES } from "@common/constants";
 import windowManager from "@main/service/WindowService";
 import menuManager from "@main/service/MenuService";
 import { BrowserWindow, ipcMain } from "electron";
 import { MENU_IDS, CONVERSATION_ITEM_MENU_IDS } from "@common/constants";
 import logManager from "@main/service/LogService";
 import { createProvider } from "@main/providers";
+import configManager from "@main/service/ConfigService";
+
 
 export function setupMainWindow() {
      windowManager.onWindowCreate(WINDOW_NAMES.MAIN, (window) => {
+          let minimizeToTray = configManager.getValue(CONFIG_KEYS.MINIMIZE_TO_TRAY);
+          configManager.onConfigChange((config)=>{
+               if (minimizeToTray===config.minimizeToTray) return
+               minimizeToTray = config.minimizeToTray
+          })
           registerMenus(window)
      })
      windowManager.create(WINDOW_NAMES.MAIN, MAIN_WIN_SIZE)

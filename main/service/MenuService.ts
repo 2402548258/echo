@@ -1,9 +1,10 @@
 import { ipcMain, Menu, MenuItemConstructorOptions } from "electron";
 import logManager from "./LogService";
-import { IPC_EVENTS } from "@common/constants";
+import { CONFIG_KEYS, IPC_EVENTS } from "@common/constants";
 import { cloneDeep } from "@common/utils";
 import { isArray } from "lodash";
 import { createTranslator } from "@main/utils";
+import configManager from "./ConfigService";
 
 
 
@@ -26,13 +27,17 @@ class MenuService {
     private constructor() {
         logManager.info("MenuService initialized");
         this._setupIpcListener();
+        this._setupLanguageChangeListener()
     }
 
     private _setupIpcListener() {
         ipcMain.handle(IPC_EVENTS.SHOW_CONTEXT_MENU, (_, id, dynamicOptions) => new Promise((resolve) => this.showMenu(id, () => resolve(true), dynamicOptions)));
     }
     private _setupLanguageChangeListener() {
-
+        configManager.onConfigChange((config)=>{
+            if(!config[CONFIG_KEYS.LANGUAGE]) return
+            t = createTranslator()
+        })
     }
     public register(id: string, menu: MenuItemConstructorOptions[]) {
         this._menuTemplates.set(id, menu);
