@@ -6,18 +6,27 @@ import { MENU_IDS, CONVERSATION_ITEM_MENU_IDS } from "@common/constants";
 import logManager from "@main/service/LogService";
 import { createProvider } from "@main/providers";
 import configManager from "@main/service/ConfigService";
+import trayManager from "@main/service/TrayService";
 
-
+const handleTray = (minimizeToTray: boolean) => {
+     if (minimizeToTray) {
+          trayManager.create();
+          return;
+     }
+     trayManager.destroy();
+}
 export function setupMainWindow() {
      windowManager.onWindowCreate(WINDOW_NAMES.MAIN, (window) => {
           let minimizeToTray = configManager.getValue(CONFIG_KEYS.MINIMIZE_TO_TRAY);
           configManager.onConfigChange((config)=>{
                if (minimizeToTray===config.minimizeToTray) return
                minimizeToTray = config.minimizeToTray
+               handleTray(configManager.getValue(CONFIG_KEYS.MINIMIZE_TO_TRAY))
           })
           registerMenus(window)
      })
      windowManager.create(WINDOW_NAMES.MAIN, MAIN_WIN_SIZE)
+     handleTray(configManager.getValue(CONFIG_KEYS.MINIMIZE_TO_TRAY))
      ipcMain.on(IPC_EVENTS.START_A_DIALOGUE, async (_, props: CreateDialogMessageProps) => {
           const { providerName, messages, messageId, selectedModel } = props;
           const mainWindow = windowManager.getInstance(WINDOW_NAMES.MAIN)

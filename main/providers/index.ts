@@ -80,7 +80,7 @@ interface _Provider extends Omit<Provider, 'openAISetting'> {
 function _parseProvider() {
     let result: Provider[] = [];
     let isBase64Parsed = false;
-    const providerConfig = configManager.getValue(CONFIG_KEYS.PROVIDER)
+    const providerConfig = configManager.getValue(CONFIG_KEYS.PROVIDER)!
     function mapMethod(provider: Provider) {
         return {
             ...provider,

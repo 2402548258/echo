@@ -57,7 +57,7 @@ export class ConfigService {
         try {
             if(fs.existsSync(this._configPath)){
                 const configContent = fs.readFileSync(this._configPath,'utf-8')
-                const config = {...this._defaultConfig,configContent}
+                const config = {...this._defaultConfig,...JSON.parse(configContent)}
                 logManager.info('Config loaded successfully from:', this._configPath);
                 return config
             }
@@ -87,8 +87,8 @@ export class ConfigService {
     public getConfig(): IConfig {
         return {...this._config};
     }
-    public getValue<T = any>(key: ConfigKeys): T {
-        return this._config[key] as T
+    public getValue<T extends keyof IConfig>(key: T ): IConfig[T] {
+        return this._config[key] 
     }
 
     public set<K extends keyof IConfig>(key: K, value: IConfig[K], autoSave: boolean = true){
