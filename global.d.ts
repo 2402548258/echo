@@ -1,4 +1,5 @@
 interface WindowApi {
+    openWindow: (name: WindowNames) => void;
     closeWindow: () => void;
     minimizeWindow: () => void;
     maximizeWindow: () => void;
@@ -15,6 +16,12 @@ interface WindowApi {
     removeContextMenuListener: (menuId: string) => void;
 
     viewIsReady: () => void;
+
+    getConfig: (key: string) => Promise<any>;
+    setConfig: (key: string, value: any) => void;
+    updateConfig: (value: any) => void;
+    onConfigChange: (callback: (config: any) => void) => () => void;
+    removeConfigChangeListener: (cb: (config: any) => void) => void;
 
     createDialog: (params: CreateDialogProps) => Promise<string>;
     _dialogFeedback: (val: 'cancel' | 'confirm', winId: number) => void;

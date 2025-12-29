@@ -31,6 +31,6 @@ export function createLogo() {
     if (logo != null) {
         return logo;
     }
-    logo = path.join(__dirname,'logo.ico');
+    logo = path.join(__dirname,'1.ico');
     return logo;
 }

@@ -1,4 +1,4 @@
-import { BrowserWindow, ipcMain, nativeTheme, webContents } from 'electron';
+import { BrowserWindow, ipcMain, nativeTheme } from 'electron';
 import { logManager } from './LogService';
 import { CONFIG_KEYS, IPC_EVENTS } from '@common/constants'
 import {configManager} from './ConfigService'
@@ -26,7 +26,7 @@ class ThemeService {
             nativeTheme.themeSource = mode;
             return nativeTheme.shouldUseDarkColors;
         })
-        ipcMain.on(IPC_EVENTS.THEME_MODE_UPDATED_ALL,()=>{
+        nativeTheme.on('updated',()=>{
             this._isDark = nativeTheme.shouldUseDarkColors;
             BrowserWindow.getAllWindows().forEach(win=>{ 
                 win.webContents.send(IPC_EVENTS.THEME_MODE_UPDATED,this._isDark);

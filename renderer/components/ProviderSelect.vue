@@ -3,8 +3,10 @@
 import { NSelect, NButton } from 'naive-ui';
 import { useProvidersStore } from '@renderer/stores/providers';
 import { SelectValue } from '@renderer/types';
+import { openWindow } from '@renderer/utils/system';
+import { WINDOW_NAMES } from '@common/constants';
 
-defineOptions({name:'ProviderSelect'});
+defineOptions({ name: 'ProviderSelect' });
 const providersStore = useProvidersStore();
 const selectedProvider = defineModel<SelectValue>('modelValue') //绑定的 prop 名叫 modelValue返回一个响应式 ref，你可以像平常的局部 state 一样使用它。
 
@@ -17,8 +19,10 @@ const providerOptions = computed(() => providersStore.allProviders.map(item => (
         value: `${item.id}:${model}`,
     }))
 })))
- 
-function openSettingWindow(){
+
+function openSettingWindow() {
+
+    openWindow(WINDOW_NAMES.SETTING)
 
 }
 
@@ -33,7 +37,7 @@ function openSettingWindow(){
                 {{ $t('main.conversation.goSettings') }}
                 <n-button class="go-settings-btn" size="tiny" @click="openSettingWindow" text>{{
                     $t('main.conversation.settings')
-                    }}</n-button>{{
+                }}</n-button>{{
                         $t('main.conversation.addModel') }}
             </span>
         </template>

@@ -48,8 +48,9 @@ export class ConfigService {
     private _setupIpcEvents(){
         const duration = 200;
         const handelUpdate = debounce((val) => this.update(val), duration);
+        const handleSet = debounce((key, val) => this.set(key, val), duration)
         ipcMain.handle(IPC_EVENTS.GET_CONFIG, (_, key) => this.getValue(key));
-        ipcMain.on(IPC_EVENTS.SET_CONFIG, (_, key, val) => this.set(key, val));
+        ipcMain.on(IPC_EVENTS.SET_CONFIG, (_, key, val) => handleSet(key, val));
         ipcMain.on(IPC_EVENTS.UPDATE_CONFIG, (_, updates) => handelUpdate(updates));
     }
 
@@ -68,7 +69,7 @@ export class ConfigService {
     }
 
     private _notifyListeners(){
-        BrowserWindow.getAllWindows().forEach(item => item.webContents.send(IPC_EVENTS.UPDATE_CONFIG, this._config));
+        BrowserWindow.getAllWindows().forEach(item => item.webContents.send(IPC_EVENTS.CONFIG_UPDATED, this._config));
         this._listeners.forEach(item => item({...this._config}))
     }
 

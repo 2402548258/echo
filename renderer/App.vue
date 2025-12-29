@@ -6,6 +6,15 @@ import ConversationList  from './components/ConversationList/index.vue'
 import { initProvider } from './dataBase';
 import { useProvidersStore } from './stores/providers';
 import { useConversationsStore } from './stores/conversations';
+import useNaiveLocale from './hooks/useNaiveLocale';
+import useNaiveTheme from './hooks/useNaiveTheme';
+import { useFontSize } from './hooks/useFontSize';
+
+
+const { locale, dateLocale } = useNaiveLocale();
+const { theme, themeOverrides } = useNaiveTheme();
+
+useFontSize();
 
 const providersStore = useProvidersStore();
 const conversationsStore = useConversationsStore();
@@ -19,7 +28,7 @@ onMounted(() => {
 const sidebarWidth = ref(320);
 </script>
 <template>
-  <n-config-provider class="h-full w-[100vw] flex text-tx-primary ">
+  <n-config-provider class="h-full w-[100vw] flex text-tx-primary " :locale="locale" :date-locale="dateLocale" :theme="theme" :theme-overrides="themeOverrides">
     <n-message-provider>
     <aside class="sidebar h-full flex flex-shrink-0 flex-col" :style="{ width: sidebarWidth + 'px' }">
       <div class="h-full flex justify-between">

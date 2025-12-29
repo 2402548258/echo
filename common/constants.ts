@@ -23,6 +23,7 @@ export enum IPC_EVENTS {
 
     THEME_MODE_UPDATED = 'theme-mode-updated',
     THEME_MODE_UPDATED_ALL = 'theme-mode-updated-all',
+    CONFIG_UPDATED = 'config-updated',
 
 }
 

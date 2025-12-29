@@ -15,6 +15,7 @@ import path from 'node:path';
 import ThemeService, { themeManager } from './ThemeService';
 import logManager from './LogService';
 import configManager from './ConfigService';
+import { createLogo } from '@main/utils';
 
 
 
@@ -57,8 +58,8 @@ class WindowService {
     main: { instance: void 0, isHidden: false, onCreate: [], onClosed: [] },
     setting: { instance: void 0, isHidden: false, onCreate: [], onClosed: [] },
     dialog: { instance: void 0, isHidden: false, onCreate: [], onClosed: [] },
-
   };
+  private _logo = createLogo()
 
   private constructor() {
     this._setupIpcEvents(); // 构造时只注册一次 IPC 监听
@@ -124,6 +125,7 @@ class WindowService {
     if (!params.isHiddenWin){
       const handler = this._addLoadingView(params.win, params.size);
       handler?.(onReady)
+      return 
     }
       onReady();  
   }
@@ -185,11 +187,10 @@ class WindowService {
       if ((e.sender !== window?.webContents) || rendererIsReady) return;
       rendererIsReady = true;
       window.contentView.removeChildView(loadingView as WebContentsView);
-      ipcMain.removeListener(IPC_EVENTS.RENDERER_IS_READY, onRendererIsReady);
       loadingView = void 0;
+      ipcMain.removeListener(IPC_EVENTS.RENDERER_IS_READY, onRendererIsReady);
     }
     ipcMain.on(IPC_EVENTS.RENDERER_IS_READY, onRendererIsReady);
-
     return (cb: () => void) => loadingView?.webContents.once('dom-ready', () => {
       loadingView?.webContents.insertCSS(`body {
           background-color: ${themeManager.isDark ? '#2C2C2C' : '#FFFFFF'} !important; 
@@ -240,6 +241,7 @@ class WindowService {
       ? this._windowStates[name].instance as BrowserWindow
       : new BrowserWindow({
         ...SHARED_WINDOW_OPTIONS,
+        icon :this._logo,
         ...opts,
       });
   }
@@ -252,6 +254,18 @@ class WindowService {
     this._handleCloseWindowState(target, really);
   }
 
+  public focus(target: BrowserWindow | void | null) {
+    if (!target) return;
+    const name = this.getName(target);
+    if (target?.isMinimized()) {
+      target?.restore();
+      logManager.debug(`Window ${name} restored and focused`);
+    } else {
+      logManager.debug(`Window ${name} focused`);
+    }
+
+    target?.focus();
+  }
 
   public getName(target: BrowserWindow | null | void): WindowNames | void {
     if (!target) return;

@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import type { Ref } from 'vue';
 import { NConfigProvider } from 'naive-ui';
+import { useFontSize } from '@renderer/hooks/useFontSize';
+import useNaiveTheme from '@renderer/hooks/useNaiveTheme';
+import useNaiveLocale from '@renderer/hooks/useNaiveLocale';
 
 const params: Ref<CreateDialogProps> = ref({
     title: '',
@@ -8,6 +11,11 @@ const params: Ref<CreateDialogProps> = ref({
     confirmText: '',
     cancelText: '',
 })
+
+useFontSize();
+const { theme, themeOverrides } = useNaiveTheme();
+const { locale, dateLocale } = useNaiveLocale();
+
 
 window.api._dialogGetParams().then(res => { params.value = res; });
 
@@ -21,10 +29,14 @@ function handleConfirm() {
     window.api._dialogFeedback('confirm', Number(params.value.winId));
 }
 
+onMounted(() => {
+    window.api.viewIsReady();
+})
 </script>
 
 <template>
-    <n-config-provider class="h-screen w-full flex flex-col">
+    <n-config-provider class="h-screen w-full flex flex-col" :locale="locale" :date-locale="dateLocale" :theme="theme"
+        :theme-overrides="themeOverrides">
         <title-bar class="h-[30px]" :is-minimizable="false" :is-maximizable="false">
             <drag-region class="p-3 text-sm font-bold text-tx-primary">
                 {{ $t(params.title ?? '') }} 
