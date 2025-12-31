@@ -1,7 +1,12 @@
 import { Conversation, Message, Provider } from "@common/types";
-import { stringifyOpenAISetting } from "@common/utils";
+import { parseOpenAISetting, stringifyOpenAISetting } from "@common/utils";
 import Dexie, { EntityTable } from "dexie";
 import logger from "./utils/logger";
+import { CONFIG_KEYS } from "@common/constants";
+import { decode, encode } from "js-base64";
+import useConfig from "./hooks/useConfig";
+
+
 
 
 export const providers: Provider[] = [
@@ -79,12 +84,41 @@ database.version(1).stores({
     messages: '++id,conversationId',
 })
 
+function _parseProvider() {
+    let result: Provider[] = [];
+    let isBase64Parsed = false;
+    const config = useConfig()
+    const providerConfig = config[CONFIG_KEYS.PROVIDER]
+    try {
+        result = JSON.parse(decode(providerConfig || '')) as Provider[]
+        isBase64Parsed = true
+    } catch (error) {
+        logger.error(`parse base64 provider failed: ${error}`);
+    }
+    if (!isBase64Parsed) {
+        try {
+            result = JSON.parse(providerConfig || '') as Provider[]
+        } catch (error) {
+            logger.error(`parse provider failed: ${error}`);
+        }
+    }
+    if (!result.length) return
+    return result 
+}
+
 export async function initProvider() {
     const count = await database.providers.count()
-    if( count < providers.length ){
+    const LogProvider = _parseProvider()
+    if( count === 0 ){
+        if(LogProvider && LogProvider.length>0){
+            await database.providers.clear()
+            await database.providers.bulkAdd(LogProvider)
+            logger.info('init LogProvider successfully')
+            return
+        }
         await database.providers.clear()
         await database.providers.bulkAdd(providers)
-        logger.info('initProvider successfully')
+        logger.info('init defaultProvider successfully')          
     }
     
 }

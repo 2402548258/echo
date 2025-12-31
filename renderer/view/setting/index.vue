@@ -4,6 +4,7 @@ import { useFontSize } from '@renderer/hooks/useFontSize';
 import useNaiveLocale from '@renderer/hooks/useNaiveLocale';
 import useNaiveTheme from '@renderer/hooks/useNaiveTheme';
 import { NConfigProvider, NMessageProvider, NForm, NFormItem, NSelect, NColorPicker, NSwitch, NTabs, NTabPane, NScrollbar } from 'naive-ui';
+import providers from './providers.vue';
 
 const { t } = useI18n();
 
@@ -76,7 +77,7 @@ onMounted(()=>{
                     </n-tab-pane>
                     <n-tab-pane name="provider" :tab="t('settings.provider.modelConfig')">
                         <!-- <providers-config /> -->
-                        providers-config
+                        <providers/>
                     </n-tab-pane>
                 </n-tabs>
             </n-scrollbar>

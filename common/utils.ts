@@ -41,7 +41,7 @@ export function cloneDeep<T>(obj: T): T {
     if (obj === null || typeof obj !== 'object') {
         return obj;
     }
- 
+
     if (Array.isArray(obj)) {
         return obj.map(item => cloneDeep(item)) as T;
     }
@@ -87,9 +87,36 @@ export function uniqueByKey<T extends Record<string, any>>(arr: T[], key: keyof 
     const seen = new Map<any, boolean>();
     return arr.filter(item => {
         const value = item[key];
-        if(seen.has(value)) return false
+        if (seen.has(value)) return false
         seen.set(value, true);
         return true;
-    } )
+    })
 }
 
+export function deepMerge<T extends Record<string, any>>(target: T, source: T): T {
+    if (target === null || target === undefined) {
+        return source
+    }
+    if (source === null || source === undefined) {
+        return target
+    }
+    if (Array.isArray(target) && Array.isArray(source)) {
+        return [...source, ...target] as unknown as T
+    }
+    if (typeof target === 'object' && typeof source === 'object') {
+        const merge = { ...target } as T
+        for (const K in source) {
+            const targetValue = target[K]
+            const sourceValue = source[K]
+            if (Object.prototype.hasOwnProperty.call(target, K) 
+                && typeof targetValue === 'object' && targetValue !== null && typeof sourceValue === 'object' && sourceValue !== null) {
+                merge[K]=deepMerge(targetValue,sourceValue)
+            }
+            else {
+                merge[K] = sourceValue
+            }
+        }
+        return merge
+    }
+    return source
+}

@@ -1,14 +1,15 @@
 <script setup lang="ts">
-import { MAIN_WIN_SIZE } from '@common/constants';
+import { CONFIG_KEYS, MAIN_WIN_SIZE } from '@common/constants';
 import { throttle } from '@common/utils';
 import { SelectValue } from '@renderer/types';
 import MessageInput from '@renderer/components/MessageInput.vue';
 import CreateConversation from '@renderer/components/CreateConversation.vue';
 import ResizeDivider from '../components/ResizeDivider.vue';
 import MessageList from '@renderer/components/MessageList.vue';
-import { messages } from '@renderer/testData';
 import { useMessagesStore } from '@renderer/stores/messages';
 import { useConversationsStore } from '@renderer/stores/conversations';
+import { useProvidersStore } from '@renderer/stores/providers';
+import useConfig from '@renderer/hooks/useConfig';
 
 const route = useRoute();
 const router = useRouter();
@@ -16,7 +17,6 @@ const conversationId = computed(() => Number(route.params.id));
 const listHeight = ref(0);
 const listScale = ref(0.7);
 const maxListHeight = ref(window.innerHeight * 0.7);
-// const isStoping = ref(false);
 const msgInputRef = useTemplateRef<{ selectedProvider: SelectValue }>('msgInputRef');
 const message = ref('');
 const provider = ref<SelectValue>();
@@ -26,6 +26,8 @@ const selectedModel = computed(() => ((provider.value as string)?.split(':')[1] 
 const messagesStore = useMessagesStore();
 const conversationsStore = useConversationsStore();
 const isStoping = ref(false);
+const providersStore = useProvidersStore();
+const config = useConfig();
 
 const messageInputStatus = computed(() => {
     if (isStoping.value) return 'loading';
@@ -34,6 +36,18 @@ const messageInputStatus = computed(() => {
     if (last?.status === 'streaming' && last?.content?.length === 0) return 'loading';
     if (last?.status === 'loading' || last?.status === 'streaming') return last?.status;
     return 'normal';
+})
+
+const defaultModel = computed(() => {
+    const vals: string[] = [];
+    providersStore.allProviders.forEach(provider => {
+        if (!provider.visible) return;
+        provider.models.forEach(model => {
+            vals.push(`${provider.id}:${model}`)
+        })
+    })
+    if (!vals.includes(config[CONFIG_KEYS.DEFAULT_MODEL] ?? '')) return null
+    return config[CONFIG_KEYS.DEFAULT_MODEL] || null;
 })
 const handleCreateConversation = async (create: (title?: string) => Promise<number | void>, message: string) => {
     const conversationId = await create(message);
@@ -52,8 +66,6 @@ const afterCreateConversation = (id: number,firstMsg:string) => {
     })
     
 }
-
-
 
 const handleSendMessage = (msg:string) => {
     const _conversationId = conversationId.value;
@@ -97,25 +109,70 @@ onBeforeRouteUpdate(async (to, from, next) => {
     next();
 });
 
+function configChange() {  //如果是初始化对话则设为defaultModel.value，否则判断对话的provider.models是否被禁用，如果没有则展示
+    if (!conversationId.value || !msgInputRef.value) {
+        provider.value = defaultModel.value
+        return
+    }
+    const current = conversationsStore.getConversationById(conversationId.value);
+    const vals: string[] = [];
+    providersStore.allProviders.forEach(provider => {
+        if (!provider.visible) return;
+        provider.models.forEach(model => {
+            vals.push(`${provider.id}:${model}`)
+        })
+    })
+    if (!current) return;
+    if (!vals.includes(`${current.providerId}:${current.selectedModel}`)) {
+        provider.value = null
+        return
+    }
+    provider.value = `${current.providerId}:${current.selectedModel}`;
+
+}
+
+
+const stopWatch = watch(()=>config,async()=>{
+    await providersStore.initialize() //先更新provide状态
+    configChange() //在更新模型选择状态
+},{deep:true})
+
 onMounted(async () => {
     await nextTick();
-    listHeight.value = window.innerHeight * listScale.value;
+    console.log(1);
+    listHeight.value = window.innerHeight * listScale.value; 
 });
+
+onUnmounted(()=>{
+    stopWatch()
+})
+
 
 
 watch(() => listHeight.value, () => listScale.value = listHeight.value / window.innerHeight);
 
 
-watch([() => conversationId.value], async ([id]) => {
-    await nextTick();
-    if (!id) {
-        console.log('默认模型');
-        // TODO: 默认模型
+watch([() => conversationId.value, () => msgInputRef.value], async ([id, msgInput]) => {
+    if (!id || !msgInput) {
+        provider.value = defaultModel.value
         return;
     }
     const current = conversationsStore.getConversationById(id);
-    if (!current) return;
+    const vals: string[] = [];
+    providersStore.allProviders.forEach(provider => {
+        if (!provider.visible) return;
+        provider.models.forEach(model => {
+            vals.push(`${provider.id}:${model}`)
+        })
+    })
+    if (!current) return; 
+    if (!vals.includes(`${current.providerId}:${current.selectedModel}`)) {
+        provider.value = null
+        return 
+    }
     provider.value = `${current.providerId}:${current.selectedModel}`;
+},{
+    immediate:true
 });
 </script>
 

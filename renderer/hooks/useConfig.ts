@@ -31,6 +31,7 @@ const setReactiveConfig = <K extends keyof IConfig>(key: K, value: IConfig[K]) =
 configKeys.forEach(item => window.api.getConfig(item).then(res => setReactiveConfig(item, res)))
 
 setLanguage(config[CONFIG_KEYS.LANGUAGE])
+
 export function useConfig() {
     const removeListener = window.api.onConfigChange((_config: IConfig) => {
         configKeys.forEach(async (key) => {
@@ -43,8 +44,8 @@ export function useConfig() {
         });
     })
 
-    const onReactiveChange = () => {
-        window.api.updateConfig({...config})
+    const onReactiveChange = async () => {
+       window.api.updateConfig({...config})
     }
 
     watch(() => config, () => {

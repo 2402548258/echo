@@ -10,7 +10,7 @@ defineOptions({ name: 'ProviderSelect' });
 const providersStore = useProvidersStore();
 const selectedProvider = defineModel<SelectValue>('modelValue') //绑定的 prop 名叫 modelValue返回一个响应式 ref，你可以像平常的局部 state 一样使用它。
 
-const providerOptions = computed(() => providersStore.allProviders.map(item => ({
+const providerOptions = computed(() => providersStore.allProviders.filter(item => item.visible).map(item => ({
     label: item.title || item.name,
     type: 'group',
     key: item.id,
