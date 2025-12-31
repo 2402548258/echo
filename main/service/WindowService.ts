@@ -2,6 +2,7 @@
 import type { WindowNames } from '@common/types';
 import { CONFIG_KEYS, IPC_EVENTS, WINDOW_NAMES } from '@common/constants';
 import {
+  app,
   BrowserWindow,
   BrowserWindowConstructorOptions,
   ipcMain,
@@ -16,6 +17,7 @@ import ThemeService, { themeManager } from './ThemeService';
 import logManager from './LogService';
 import configManager from './ConfigService';
 import { createLogo } from '@main/utils';
+import shortcutManager from './ShortcutService';
 
 
 
@@ -102,6 +104,7 @@ class WindowService {
       ._setupWinLifecycle(window, name)
       ._loadWindowTemplate(window, name)
     this._listenWinReady({ win: window, isHiddenWin, size });
+    this._handleWindowShortcuts(window)
     if (!isHiddenWin) {
       this._windowStates[name].instance = window;
       this._windowStates[name].onCreate.forEach(callback => callback(window));
@@ -113,6 +116,28 @@ class WindowService {
     return window;
   }
 
+  private _handleWindowShortcuts(win: BrowserWindow) {
+    const isPackaged = app.isPackaged;
+
+    const proxyCloseEvent = () => {
+      this.close(win, this._isReallyClose(this.getName(win)));
+      return true;
+    }
+
+    shortcutManager.registerForWindow(win, (input) => {
+      if ((input.key === 'F4' && input.alt) && (process.platform !== 'darwin'))
+        return proxyCloseEvent();
+      if (input.code === 'KeyW' && input.modifiers.includes('control'))
+        return proxyCloseEvent();
+      if (!isPackaged) return;
+      // 禁用 开发者工具
+      if (
+        input.code === 'KeyI' &&
+        input.modifiers.includes('control') &&
+        input.modifiers.includes('shift')
+      ) return true;
+    })
+  }
   private _listenWinReady(params: {
     win: BrowserWindow,
     isHiddenWin: boolean,

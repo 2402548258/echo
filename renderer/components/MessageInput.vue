@@ -6,6 +6,8 @@ import type { SelectValue } from '@renderer/types';
 
 import ProviderSelect from './ProviderSelect.vue';
 import NativeTooltip from './NativeTooltip.vue';
+import { listenShortcut } from '@renderer/utils/shortcut';
+import { SHORTCUT_KEYS } from '@common/constants';
 interface Props {
     placeholder?: string;
     status?: 'loading' | 'streaming' | 'normal';
@@ -37,11 +39,18 @@ const btnTipContent = computed(() => {
     if (props.status === 'streaming') return t('main.message.stopGeneration');
     return t('main.message.send');
 });
-
+const removeShortcutListeners = listenShortcut(SHORTCUT_KEYS.SEND_MESSAGE, () => {
+    if (props.status === 'streaming') return
+    if (isBtnDisabled.value) return
+    if (!focused.value) return
+    handelSend();
+});
 const handelSend = () => {
     if(props.status === 'streaming')  return emits('stop') 
     emits('send',message.value)
 }
+
+onUnmounted(() => removeShortcutListeners());
 
 defineExpose({
     selectedProvider,

@@ -1,11 +1,12 @@
 import { Tray, Menu, ipcMain, app } from 'electron';
 import { createTranslator, createLogo } from '../utils';
-import { CONFIG_KEYS, IPC_EVENTS, WINDOW_NAMES, MAIN_WIN_SIZE } from '@common/constants';
+import { CONFIG_KEYS, IPC_EVENTS, WINDOW_NAMES, MAIN_WIN_SIZE, SHORTCUT_KEYS } from '@common/constants';
 
 import logManager from './LogService';
 // TODO: shortcutManager
 import windowManager from './WindowService';
 import configManager from './ConfigService';
+import shortcutManager from './ShortcutService';
 let t: ReturnType<typeof createTranslator> = createTranslator();
 
 class TrayService {
@@ -26,12 +27,11 @@ class TrayService {
             }
         })
     }
-    private _updateTray(){
-        if(!this._tray){
+    private _updateTray() {
+        if (!this._tray) {
             this._tray = new Tray(createLogo())
         }
         const showWindow = () => {
-            console.log('show');
             const mainWindow = windowManager.getInstance(WINDOW_NAMES.MAIN);
             if (mainWindow && mainWindow?.isVisible() && !mainWindow?.isFocused()) {
                 return mainWindow.focus();
@@ -45,22 +45,24 @@ class TrayService {
 
             windowManager.create(WINDOW_NAMES.MAIN, MAIN_WIN_SIZE);
         }
-
+        shortcutManager.register(SHORTCUT_KEYS.SHOW_WINDOW, 'tray.showWindow', showWindow);
         this._tray.setToolTip(t('tray.tooltip')!)
         this._tray.setContextMenu(Menu.buildFromTemplate([
-            { label: t('tray.showWindow'), accelerator: 'CmdOrCtrl+N', click: showWindow },
+            { label: t('tray.showWindow'), accelerator: SHORTCUT_KEYS.SHOW_WINDOW, click: showWindow },
             { type: 'separator' },
             { label: t('settings.title'), click: () => ipcMain.emit(`${IPC_EVENTS.OPEN_WINDOW}:${WINDOW_NAMES.SETTING}`) },
             { role: 'quit', label: t('tray.exit') }
         ]));
 
         this._tray.removeAllListeners('click');
-        this._tray.on('click',showWindow)
-        
-        
+        this._tray.on('click', showWindow)
+
+
 
     }
 
+
+    private _handleAppQuit?: () => void;
     public static getInstance() {
         if (!this._instance) {
             this._instance = new TrayService();
@@ -71,16 +73,22 @@ class TrayService {
     public create() {
         if (this._tray) return;
         this._updateTray();
-        app.on('quit', () => {
+        this._handleAppQuit = () => {
             this.destroy();
-            //TODO: 移除快捷键
-        })
+            shortcutManager.unRegister('tray.showWindow');
+        };
+        app.on('quit', this._handleAppQuit
+        )
     }
 
     public destroy() {
         this._tray?.destroy();
         this._tray = null;
-        //TODO: 移除快捷键
+        if (this._handleAppQuit) {
+            app.removeListener('quit', this._handleAppQuit);
+            this._handleAppQuit = void 0;
+        }
+        shortcutManager.unRegister('tray.showWindow');
         if (this._removeLanguageListener) {
             this._removeLanguageListener();
             this._removeLanguageListener = void 0;

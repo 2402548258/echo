@@ -139,7 +139,6 @@ const stopWatch = watch(()=>config,async()=>{
 
 onMounted(async () => {
     await nextTick();
-    console.log(1);
     listHeight.value = window.innerHeight * listScale.value; 
 });
 

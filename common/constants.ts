@@ -24,6 +24,7 @@ export enum IPC_EVENTS {
     THEME_MODE_UPDATED = 'theme-mode-updated',
     THEME_MODE_UPDATED_ALL = 'theme-mode-updated-all',
     CONFIG_UPDATED = 'config-updated',
+    SHORTCUT_CALLED = "shortcut-called",
 
 }
 
@@ -79,4 +80,10 @@ export enum MESSAGE_ITEM_MENU_IDS {
     COPY = 'copy',
     DELETE = 'delete',
     SELECT = 'select',
+}
+
+export enum SHORTCUT_KEYS {
+    SHOW_WINDOW = 'CmdOrCtrl+N',
+    CLOSE_WINDOW = 'CmdOrCtrl+W',
+    SEND_MESSAGE = 'CmdOrCtrl+Enter',
 }

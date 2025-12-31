@@ -1,4 +1,4 @@
-import { CONFIG_KEYS, CONVERSATION_LIST_MENU_IDS, IPC_EVENTS, MAIN_WIN_SIZE, MESSAGE_ITEM_MENU_IDS, WINDOW_NAMES } from "@common/constants";
+import { CONFIG_KEYS, CONVERSATION_LIST_MENU_IDS, IPC_EVENTS, MAIN_WIN_SIZE, MESSAGE_ITEM_MENU_IDS, SHORTCUT_KEYS, WINDOW_NAMES } from "@common/constants";
 import windowManager from "@main/service/WindowService";
 import menuManager from "@main/service/MenuService";
 import { BrowserWindow, ipcMain } from "electron";
@@ -7,6 +7,7 @@ import logManager from "@main/service/LogService";
 import { createProvider } from "@main/providers";
 import configManager from "@main/service/ConfigService";
 import trayManager from "@main/service/TrayService";
+import shortcutManager from "@main/service/ShortcutService";
 
 const handleTray = (minimizeToTray: boolean) => {
      if (minimizeToTray) {
@@ -15,6 +16,23 @@ const handleTray = (minimizeToTray: boolean) => {
      }
      trayManager.destroy();
 }
+
+const destroyMenus = () => {
+     menuManager.destroyMenu(MENU_IDS.CONVERSATION_ITEM);
+     menuManager.destroyMenu(MENU_IDS.CONVERSATION_LIST);
+     menuManager.destroyMenu(MENU_IDS.MESSAGE_ITEM);
+}
+
+const registerShortcuts = (window:BrowserWindow)=> {
+     shortcutManager.registerForWindow(window,(input)=>{
+          if (input.code === 'Enter' && input.modifiers.includes('control'))
+               window?.webContents.send(IPC_EVENTS.SHORTCUT_CALLED + SHORTCUT_KEYS.SEND_MESSAGE)
+               return true
+     })
+}
+
+
+
 export function setupMainWindow() {
      windowManager.onWindowCreate(WINDOW_NAMES.MAIN, (window) => {
           let minimizeToTray = configManager.getValue(CONFIG_KEYS.MINIMIZE_TO_TRAY);
@@ -24,9 +42,13 @@ export function setupMainWindow() {
                handleTray(configManager.getValue(CONFIG_KEYS.MINIMIZE_TO_TRAY))
           })
           registerMenus(window)
+          handleTray(configManager.getValue(CONFIG_KEYS.MINIMIZE_TO_TRAY))
+          registerShortcuts(window)
+     })
+     windowManager.onWindowClosed(WINDOW_NAMES.MAIN, () => {
+          destroyMenus();
      })
      windowManager.create(WINDOW_NAMES.MAIN, MAIN_WIN_SIZE)
-     handleTray(configManager.getValue(CONFIG_KEYS.MINIMIZE_TO_TRAY))
      ipcMain.on(IPC_EVENTS.START_A_DIALOGUE, async (_, props: CreateDialogMessageProps) => {
           const { providerName, messages, messageId, selectedModel } = props;
           const mainWindow = windowManager.getInstance(WINDOW_NAMES.MAIN)

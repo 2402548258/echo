@@ -27,11 +27,13 @@ export function debounce<T extends (...args: any[]) => any>(fn: T, delay: number
  */
 export function throttle<T extends (...args: any[]) => any>(fn: T, interval: number): (...args: Parameters<T>) => void {
     let lastTime = 0;
+    let lastResult: ReturnType<T>;
     return function (this: any, ...args: Parameters<T>) {
         const now = Date.now();
         if (now - lastTime >= interval) {
-            fn.apply(this, args);
+            lastResult =fn.apply(this, args);
             lastTime = now;
+            return lastResult
         }
     };
 }

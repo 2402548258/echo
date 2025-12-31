@@ -30,6 +30,7 @@ interface WindowApi {
 
     startADialogueMessage: (params: CreateDialogMessageProps) => void;
     onDialogueBack: (cb: (data: DialogueBackStream) => void, messageId: number) => () => void;
+    onShortcutCalled: (key: stirng, cb: () => void) => () => void;
 
     logger: {
         debug: (message: string, ...meta?: any[]) => void;
